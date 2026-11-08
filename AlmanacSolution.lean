@@ -1,12 +1,11 @@
--- A lower bound for 8 symbols, from proofs/lean/n8_46134 of github.com/jhalfar/superpermutations
--- (Theorem D with three finite searches evaluated by native_decide). The linking lemma is in
--- LowerLinks.lean.
+-- A lower bound for 6 symbols, from proofs/lean/small of github.com/jhalfar/superpermutations, checked by
+-- the kernel alone (no native_decide). The linking lemma is in LowerLinks.lean.
 import AlmanacDefs
 import LowerLinks
 
 namespace AlmanacSubmission
 
-/-- Every superpermutation on 8 symbols has length at least 46,134. -/
-theorem lower_eight : Almanac.LowerBoundAt 8 46134 := LowerLinks.lower_eight
+/-- Every superpermutation on 6 symbols has length at least 872. -/
+theorem lower_six_kernel : Almanac.LowerBoundAt 6 872 := LowerLinks.lower_six
 
 end AlmanacSubmission

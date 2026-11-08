@@ -1,5 +1,5 @@
-# The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 8 symbols
-# has at least 46,134 letters (three finite searches evaluated by native_decide).
+# The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 6 symbols
+# has at least 872 letters, checked by the kernel alone (no native_decide).
 name = "almanac_submission"
 
 # The four reserved Almanac libraries, with their files at the repository root: each has only its name
@@ -31,22 +31,20 @@ name = "Hunter"
 name = "PreimageChain"
 
 # From github.com/jhalfar/superpermutations: the bridge to Hunter.Ssuper (proofs/lean/words) and the
-# lower-bound development (proofs/lean/lower, proofs/lean/n7, proofs/lean/n8_46134).
+# lower-bound development (proofs/lean/lower, proofs/lean/n7).
 [[lean_lib]]
 name = "Superperm"
 
 [[lean_lib]]
 name = "LowerBounds"
 
-# The search engine LowerBounds.DSearch (a file with no imports) as a library of its own, compiled to native
-# code: Lake loads it when it builds the modules that import it, so the three native_decide evaluations run
-# compiled code. It is declared after LowerBounds, so this library, not LowerBounds, owns the module.
+# The proof of 872 (proofs/lean/small/K6 of the same repository) and the pieces of its two searches.
+# Its proofs were written without a limit on the heartbeats of the elaborator.
 [[lean_lib]]
-name = "DSearchEngine"
-roots = ["LowerBounds.DSearch"]
-precompileModules = true
+name = "K6"
+leanOptions = { maxHeartbeats = 0 }
 
-# The linking lemma: the Almanac template from the theorem of LowerBounds.DFinalNative.
+# The linking lemma: the Almanac template from K6.covers_872.
 [[lean_lib]]
 name = "LowerLinks"
 

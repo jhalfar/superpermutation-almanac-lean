@@ -1,15 +1,18 @@
-Superpermutation bounds in Lean: a lower bound for 8 symbols (a Superpermutation Almanac batch)
+Superpermutation bounds in Lean: a lower bound for 6 symbols, checked by the kernel alone (a Superpermutation
+Almanac batch)
 
 This project contains Lean sources from four repositories and new files.
 
 Jakub Halfar, superpermutations
 https://github.com/jhalfar/superpermutations, commit 64ab6a783731744882bc1886124faaf370fa9223
 Apache License 2.0, reproduced in licenses/jhalfar-superpermutations-LICENSE.
-Included: the 32 modules of LowerBounds/ (from the directories proofs/lean/lower, proofs/lean/n7 and
-proofs/lean/n8_46134) and the 2 of Superperm/ (from proofs/lean/words) that the proof imports. Changed files say at
-their top what was changed: LowerBounds/SSearch.lean (a local macro written as a local notation with the same
-expansion) and the trust comments of LowerBounds/DLine1Native.lean, DLine2Native.lean, DZoneNative.lean and
-DFinalNative.lean (comments only).
+Included: the modules of LowerBounds/ (from the directories proofs/lean/lower and proofs/lean/n7), of
+Superperm/ (from proofs/lean/words) and of K6/ (from proofs/lean/small) that the proof imports, and the
+generators tools/gen_k6.py, tools/gen_cap.py and tools/gen_tight.py (from proofs/lean/small, unchanged).
+Changed files say at their top what was changed: K6/TightConf.lean (the numbers of parts in the hypotheses of
+one theorem), K6/TabOK.lean (each check over the 720 words evaluated in 8 pieces) and K6/Final872.lean (a
+comment). K6/CapEval.lean and K6/TightAll.lean are written anew by
+tools/gen_te.py.
 
 Zach Hunter and Uku Raudvere, superpermutations-hunter
 https://github.com/urdvr/superpermutations-hunter, commit d45222190031d162feb1f6f3cf5fe2d11fab726d
@@ -42,5 +45,7 @@ Included: Challenge.lean, unchanged.
 SOURCES.tsv lists every included file with its origin, its path in the original repository and the SHA-256 of
 the original it was copied from.
 
-New files: AlmanacSolution.lean, LowerLinks.lean, README.md. AlmanacDefs.lean, AlmanacStatement.lean and
-AlmanacChallenge.lean are the Almanac's files (superpermutations.com), unchanged.
+New files, under the Apache License 2.0 of jhalfar/superpermutations: K6/Frontier.lean, K6/TightCut.lean,
+K6/CapCut.lean, tools/gen_te.py and the files it writes (K6/CapEval.lean, K6/TightAll.lean, K6/CE/*.lean,
+K6/TE/*.lean), AlmanacSolution.lean, LowerLinks.lean, README.md and this NOTICE. AlmanacDefs.lean,
+AlmanacStatement.lean and AlmanacChallenge.lean are the Almanac's files (superpermutations.com), unchanged.
