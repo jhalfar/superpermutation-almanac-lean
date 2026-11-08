@@ -1,5 +1,5 @@
-# The root Lake project of a Superpermutation Almanac batch submission: two upper bounds for large n
-# (the coefficient of (n-3)! tends to 0; the coefficient of (n-4)! is at most 41/5 for n >= 2^14).
+# The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 8 symbols
+# has at least 46,134 letters (three finite searches evaluated by native_decide).
 name = "almanac_submission"
 
 # The four reserved Almanac libraries, with their files at the repository root: each has only its name
@@ -17,21 +17,38 @@ name = "AlmanacChallenge"
 [[lean_lib]]
 name = "AlmanacSolution"
 
-# Jay Pantone's statements file (Covers, F3), from github.com/jaypantone/superperm-upper-43-80 at c8fb7ff.
+# Jay Pantone's statements file (Covers), from github.com/jaypantone/superperm-upper-43-80 at c8fb7ff.
 [[lean_lib]]
 name = "Challenge"
 
-# The modules of Pantone's library that the proofs need (same source), one of them patched.
+# The modules of the Hunter-Raudvere library that the proof needs (github.com/urdvr/superpermutations-hunter).
 [[lean_lib]]
-name = "SuperpermutationUpperBound"
+name = "Hunter"
 
-# Our development, from github.com/jhalfar/superpermutations, proofs/lean/constant43586371.
+# The modules of Xiaolong Liu's preimage-chain library that the proof needs
+# (github.com/Haruhiyuki/superpermutations-preimage-chain-lower-bounds).
 [[lean_lib]]
-name = "SuperpermutationUpperBound43586371"
+name = "PreimageChain"
 
-# The linking lemmas: the Almanac templates from the theorems above.
+# From github.com/jhalfar/superpermutations: the bridge to Hunter.Ssuper (proofs/lean/words) and the
+# lower-bound development (proofs/lean/lower, proofs/lean/n7, proofs/lean/n8_46134).
 [[lean_lib]]
-name = "UpperLinks"
+name = "Superperm"
+
+[[lean_lib]]
+name = "LowerBounds"
+
+# The search engine LowerBounds.DSearch (a file with no imports) as a library of its own, compiled to native
+# code: Lake loads it when it builds the modules that import it, so the three native_decide evaluations run
+# compiled code. It is declared after LowerBounds, so this library, not LowerBounds, owns the module.
+[[lean_lib]]
+name = "DSearchEngine"
+roots = ["LowerBounds.DSearch"]
+precompileModules = true
+
+# The linking lemma: the Almanac template from the theorem of LowerBounds.DFinalNative.
+[[lean_lib]]
+name = "LowerLinks"
 
 [[require]]
 name = "mathlib"

@@ -1,17 +1,12 @@
--- Two upper bounds for the shortest superpermutation for large n, from the development
--- proofs/lean/constant43586371 of github.com/jhalfar/superpermutations (Pantone's construction
--- with nested block levels). The linking lemmas are in UpperLinks.lean.
+-- A lower bound for 8 symbols, from proofs/lean/n8_46134 of github.com/jhalfar/superpermutations
+-- (Theorem D with three finite searches evaluated by native_decide). The linking lemma is in
+-- LowerLinks.lean.
 import AlmanacDefs
-import UpperLinks
+import LowerLinks
 
 namespace AlmanacSubmission
 
-/-- The coefficient of (n-3)! tends to 0: for every ε > 0, for all large n, some superpermutation on
-n symbols has length at most n! + (n-1)! + (n-2)! + ε (n-3)!. -/
-theorem upper_coeff3_zero : Almanac.AsymptoticUpperAt 3 0 := UpperLinks.upper_coeff3_zero
-
-/-- For every ε > 0, for all large n, some superpermutation on n symbols has length at most
-n! + (n-1)! + (n-2)! + (8 + ε) (n-4)!. -/
-theorem upper_coeff4 : Almanac.AsymptoticUpperAt 4 8 := UpperLinks.upper_coeff4_eight
+/-- Every superpermutation on 8 symbols has length at least 46,134. -/
+theorem lower_eight : Almanac.LowerBoundAt 8 46134 := LowerLinks.lower_eight
 
 end AlmanacSubmission
