@@ -1,0 +1,29 @@
+Superpermutation bounds in Lean: two upper bounds for large n (a Superpermutation Almanac batch)
+
+This project contains Lean sources from two repositories, both under the Apache License 2.0, and new files.
+
+Jay Pantone, superperm-upper-43-80
+https://github.com/jaypantone/superperm-upper-43-80, commit c8fb7ffdd69be1375580710ae11b47a295b1f0f6
+Apache License 2.0, reproduced in licenses/pantone-superperm-upper-43-80-LICENSE.
+Included: Challenge.lean and the 94 modules of SuperpermutationUpperBound/ that the proofs import.
+SuperpermutationUpperBound/Assembly/SupportedStates.lean is the modified copy of his file from
+proofs/lean/constant/patches of github.com/jhalfar/superpermutations; it says at its top what was changed, and
+patches/SupportedStates.diff shows the change. Six other files of his were changed for Lean 4.35.0 and the
+Mathlib commit 56a005855ea17e0b0958f73ec801ae140b0a1679; each says at its top that it was changed and how.
+
+Jakub Halfar, superpermutations
+https://github.com/jhalfar/superpermutations, commit 64ab6a783731744882bc1886124faaf370fa9223,
+directory proofs/lean/constant43586371
+Apache License 2.0, reproduced in licenses/jhalfar-superpermutations-LICENSE.
+Included: the 34 modules of SuperpermutationUpperBound43586371/ that the two statements need. Files changed for
+Lean 4.35.0 say so at their top.
+
+The six port fixes in files of the first repository and the one in Relabel.lean follow the compatibility
+changes that Jay Pantone recorded for the same files in his release "A polynomial error estimate for
+superpermutation length" (verification/compatibility.patch, Apache License 2.0).
+
+SOURCES.tsv lists every included file with the SHA-256 of the original it was copied from.
+
+New files: AlmanacSolution.lean, UpperLinks.lean, SuperpermutationUpperBound.lean,
+SuperpermutationUpperBound43586371.lean, README.md. AlmanacDefs.lean, AlmanacStatement.lean and
+AlmanacChallenge.lean are the Almanac's files (superpermutations.com), unchanged.

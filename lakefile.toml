@@ -1,0 +1,39 @@
+# The root Lake project of a Superpermutation Almanac batch submission: two upper bounds for large n
+# (the coefficient of (n-3)! tends to 0; the coefficient of (n-4)! is at most 41/5 for n >= 2^14).
+name = "almanac_submission"
+
+# The four reserved Almanac libraries, with their files at the repository root: each has only its name
+# and no srcDir. The judge overwrites AlmanacDefs.lean, AlmanacStatement.lean and AlmanacChallenge.lean
+# with its own.
+[[lean_lib]]
+name = "AlmanacDefs"
+
+[[lean_lib]]
+name = "AlmanacStatement"
+
+[[lean_lib]]
+name = "AlmanacChallenge"
+
+[[lean_lib]]
+name = "AlmanacSolution"
+
+# Jay Pantone's statements file (Covers, F3), from github.com/jaypantone/superperm-upper-43-80 at c8fb7ff.
+[[lean_lib]]
+name = "Challenge"
+
+# The modules of Pantone's library that the proofs need (same source), one of them patched.
+[[lean_lib]]
+name = "SuperpermutationUpperBound"
+
+# Our development, from github.com/jhalfar/superpermutations, proofs/lean/constant43586371.
+[[lean_lib]]
+name = "SuperpermutationUpperBound43586371"
+
+# The linking lemmas: the Almanac templates from the theorems above.
+[[lean_lib]]
+name = "UpperLinks"
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
