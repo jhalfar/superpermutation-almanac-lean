@@ -1,5 +1,5 @@
-# The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 6 symbols
-# has at least 872 letters, checked by the kernel alone (no native_decide).
+# The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 7 symbols
+# has at least 5,899 letters, with twelve finite searches evaluated by native_decide.
 name = "almanac_submission"
 
 # The four reserved Almanac libraries, with their files at the repository root: each has only its name
@@ -38,13 +38,22 @@ name = "Superperm"
 [[lean_lib]]
 name = "LowerBounds"
 
+# The three search engines LowerBounds.PSearch, LowerBounds.KSearch and LowerBounds.K16Search (PSearch imports
+# nothing, the other two import only the engine before them) as a library of their own, compiled to native code:
+# Lake loads it when it builds the modules that import it, so the native_decide evaluations run compiled code.
+# It is declared after LowerBounds, so this library, not LowerBounds, owns the three modules.
+[[lean_lib]]
+name = "SearchEngine"
+roots = ["LowerBounds.PSearch", "LowerBounds.KSearch", "LowerBounds.K16Search"]
+precompileModules = true
+
 # The proof of 872 (proofs/lean/small/K6 of the same repository) and the pieces of its two searches.
-# Its proofs were written without a limit on the heartbeats of the elaborator.
+# Its proofs were written without a limit on the heartbeats of the elaborator. Not imported by this batch.
 [[lean_lib]]
 name = "K6"
 leanOptions = { maxHeartbeats = 0 }
 
-# The linking lemma: the Almanac template from K6.covers_872.
+# The linking lemma: the Almanac template from the theorem of LowerBounds.PFinalK16Native.
 [[lean_lib]]
 name = "LowerLinks"
 

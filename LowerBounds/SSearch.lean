@@ -1,3 +1,5 @@
+-- Changed for the Superpermutation Almanac: a modified copy of proofs/lean/lower/LowerBounds/SSearch.lean of github.com/jhalfar/superpermutations (commit 64ab6a7, Apache License 2.0).
+-- Line 50: the local macro `sel(c, a, b)` is now a local notation with the same expansion, since the Almanac's rules for native_decide proofs exclude macros.
 /-!
 # The window search on numbers
 
@@ -45,7 +47,7 @@ namespace SuperpermLowerBounds
 namespace S
 
 /-- `sel(c, a, b)` is `a` if `c` is `true` and `b` otherwise, written with the recursor. -/
-local macro "sel(" c:term ", " a:term ", " b:term ")" : term => `(@Bool.rec (fun _ => _) $b $a $c)
+local notation "sel(" c ", " a ", " b ")" => @Bool.rec (fun _ => _) b a c
 
 theorem cond_rec {α : Type} (c : Bool) (a b : α) :
     @Bool.rec (fun _ => α) b a c = (bif c then a else b) := by
