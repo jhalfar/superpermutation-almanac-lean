@@ -3,55 +3,67 @@
 Lean proofs of bounds on the length of the shortest superpermutation, laid out as batch submissions to the
 [Superpermutation Almanac](https://superpermutations.com). The full development, with the words and the other
 proofs, is in [jhalfar/superpermutations](https://github.com/jhalfar/superpermutations). My first batch (two upper
-bounds for large $`n`$) is commit `af99e83`, the second (a lower bound for 8 symbols) is commit `7e6664d` and the
-third (872 for 6 symbols, checked by the kernel) is commit `7b7b96d`. This commit holds the fourth.
+bounds for large $`n`$) is commit `af99e83`, the second (a lower bound for 8 symbols) is commit `7e6664d`, the
+third (872 for 6 symbols, checked by the kernel) is commit `7b7b96d` and the fourth (5,899 for 7 symbols with
+`native_decide`) is commit `a09f9ef`. This commit holds the fifth.
 
-## This batch: 5,899 for 7 symbols
+## This batch: 5,898 for 7 symbols, checked by the kernel
 
 [`AlmanacSolution.lean`](AlmanacSolution.lean) states one result:
 
 | statement | meaning |
 |---|---|
-| `Almanac.LowerBoundAt 7 5899` | every superpermutation on 7 symbols has length at least 5,899 |
+| `Almanac.LowerBoundAt 7 5898` | every superpermutation on 7 symbols has length at least 5,898 |
 
-The proof is my proof of 5,899 in `proofs/lean/n7` of the main repository (the model of standard
-configurations, the accounting at cost 134 and twelve finite searches), with one change: the six searches F0 to
-F5 for sequences of rows are run by the search engine of `proofs/lean/n7_5900` and `proofs/lean/n7_5901`
-instead of the engine of `proofs/lean/n7`. The statements are the same (every sequence with exactly $`s`$ links of
-weight 4 and at most $`84 - 6s`$ holes has at most $`P_s(x)`$ rows, for the tables of `LowerBounds/PTables.lean`).
-The newer engine prunes with two more rules whose soundness is proved by the kernel: the reversal cut of the
-written proof of 5,900 (a shortest counterexample or its reversal has a dip no deeper than its peak) and Rule JS
-of 5,901 (one of the two spellings of a junction class is enough). With a tuned potential the six searches visit
-2,944,496,974 prefixes instead of 109,851,175,223.
+The bound is Justin Lebar's, whose Lean proof ([jlebar/superperm7-ge-5898](https://github.com/jlebar/superperm7-ge-5898))
+evaluates its finite searches with `native_decide`; nothing of it is used here. This proof uses no
+`native_decide`, no `Lean.ofReduceBool` and no compiled code: every finite search is evaluated by the kernel
+(`decide +kernel`), and the theorem depends on the axioms `propext`, `Classical.choice` and `Quot.sound` only.
+The kernel-only bound the Almanac lists so far is William Echols's 5,897
+([williamechols/superpermutations](https://github.com/williamechols/superpermutations)), which takes the same
+route one unit lower, at cost 132, where the chain caps alone are enough. Nothing of his code is used here.
 
-* [`LowerBounds/PFinalK16.lean`](LowerBounds/PFinalK16.lean): the theorem of 5,899 from the twelve search
-  equations, checked by the kernel. It is `PFinal.lean` with `K16.seqCap_of_k16search` in place of
-  `PS.seqCap_of_search` for F0 to F5.
-* [`LowerBounds/PK16F0Native.lean`](LowerBounds/PK16F0Native.lean),
-  [`PK16F1Native.lean`](LowerBounds/PK16F1Native.lean), [`PK16Native.lean`](LowerBounds/PK16Native.lean): F0 to
-  F5 by `native_decide`.
-* [`PRingNative.lean`](LowerBounds/PRingNative.lean) and [`PProfNative.lean`](LowerBounds/PProfNative.lean): the
-  ring search FR and the five profile searches FF, as in the main repository.
-* [`LowerBounds/PFinalK16Native.lean`](LowerBounds/PFinalK16Native.lean): `covers_lower_bound_7_k16_native`.
+The proof is the coarse part of my proof of 5,899 (`proofs/lean/n7` of the main repository, here in
+`LowerBounds/`), run at cost 133 instead of 134:
 
-Only the twelve evaluations are not checked by the kernel. They trust the Lean compiler, the C compiler of the
-Lean toolchain and the Lean runtime. The three engines (`LowerBounds/PSearch.lean`, `KSearch.lean`,
-`K16Search.lean`) form the library `SearchEngine` of `lakefile.toml` with `precompileModules = true`, so Lake
-compiles them to a shared library and loads it when it builds the files that evaluate the searches.
+1. The model of standard configurations (Theorems W and N): if no valid configuration on 7 symbols has cost
+   at most $`5! + 13 = 133`$, every superpermutation on 7 symbols has at least $`\mathrm{hpv}(7) + 14 = 5{,}898`$
+   letters.
+2. A configuration of cost at most 133 has value at least 55 and weight at most 78 (Lemma ACC), so its family
+   of trails has weight $`\sum (\text{holes} + 6) \le 84`$ and value $`\sum (\text{rows} - \text{holes} - 5) \ge 50`$,
+   whatever the costs of its links (Lemma FAM). In the proof of 5,899 this is the case that Lemma FF refutes with
+   the chain caps and the five profile statements alone; here it is the whole proof (`K7/Final.lean`). The
+   sequences with links, the rings and the hanging items of 5,899 are not needed.
+3. The chain caps $`W(x)`$ for chains with $`x \le 78`$ holes (`tools/caps5898.txt`): the caps of 5,899 up to
+   36 holes, and above that larger caps, as large as the knapsack allows (`K7/Arith.lean`, checked by
+   `decide +kernel`: the only families of weight at most 84 and value 50 are the five profiles). Larger caps are
+   weaker statements, and their search is about a hundred times smaller than that of 5,899 cut at 78 holes.
+4. Two kinds of searches by the kernel finish the proof: the chain caps (`K7/CE/`, 12,296,167 calls of the
+   search) and the five profile statements of 5,899 (`K7/FE/`, 779,347, 202,109, 403,989, 754,979 and
+   3,263,423 calls).
 
-| search | kept prefixes (a C program with the same rule, and the Lean counting copy for F3) | potential, parts |
-|---|---|---|
-| F0, chains, holes <= 84 | 1,821,996,511 | (20, 31, 5), 16 parts |
-| F1, one link, holes <= 78 | 865,775,975 | (10, 16, 30), 8 parts |
-| F2 .. F5 | 185,928,533 / 69,918,349 / 814,664 / 62,942 | (10, 16, 30), one part each |
-| FR, rings | 460,113,709 | 1,009 parts |
-| FF, five profiles | 108,741 / 27,110 / 54,979 / 103,034 / 405,173 (the counts of the main repository) | one part each |
+The search engine is the one of my proof of 872 (`K6/Engine.lean`) written for 7 symbols (`K7/Engine.lean`): a
+depth-first search over rows of blocks whose rotation classes are new, with the tables of the 5,040 words as
+natural numbers read with shifts and the used classes as a natural number read as a set of bits, so that the
+kernel computes with GMP. `K7/TabOK/` checks the tables against the words, `K7/Sound.lean` proves that the
+search is complete and `K7/Prove.lean` that a search with the rules of `PSearch.lean` (read from bit tables,
+which `K7/TabCheck/` checks against the rules) that answers `false` proves the statement of `PSeq.lean` for
+those rules. From there the theorems of the proof of 5,899 give the chain caps and the profile statements.
+
+The searches are too large for one evaluation, so they are cut into pieces as in the proof of 872
+(`K7/Frontier.lean`): an evaluation computes the frontier of the search below a node and compares it with a list
+written out in a file, and the search below the nodes of such lists is evaluated a few nodes at a time. For
+the profile searches a node where a chain is complete tries all 5,040 words for the next chain; such a node is
+cut by ranges of words (`jumpsR`). `tools/gen_k7te.py` finds the frontiers with a copy of the search in Python
+and writes the files; nothing it computes is trusted. No evaluation goes above 12,000 weighted calls of the
+search.
 
 [`LowerLinks.lean`](LowerLinks.lean) holds the linking lemma. It proves that the covering predicate of the proof
 (`SuperpermutationBounds.Covers` from Jay Pantone's `Challenge.lean`) is `Almanac.IsSuperpermutation` over
-`List (Fin 7)`, and then the template statement from `SuperpermLowerBounds.covers_lower_bound_7_k16_native`.
+`List (Fin 7)`, and then the template statement from `K7.covers_lower_bound_7_kernel`.
 
-The files of the 872 batch (`K6/`) are still in the repository but nothing of this batch imports them.
+The files of the batches of 872 (`K6/`) and of 5,899 (`LowerBounds/PFinalK16.lean` and the search engines
+`KSearch`, `K16Search`) are still in the repository, but nothing of this batch imports them.
 
 ## Build
 
@@ -64,22 +76,19 @@ printf 'import AlmanacSolution\n#print axioms AlmanacSubmission.lower_seven\n' >
 lake env lean Axioms.lean
 ```
 
-The axioms are `propext`, `Classical.choice`, `Quot.sound` and the twelve
-`<name>._native.native_decide.ax_1_1` of `K16.f0k` .. `K16.f5k`, `PS.ring`, `PS.prof36`, `PS.prof26`,
-`PS.prof34`, `PS.prof14`, `PS.prof4`.
+The axioms are `propext`, `Classical.choice` and `Quot.sound`.
 
-On my machine (Linux under WSL 2, Mathlib from its cache, idle priority beside other jobs) I measured:
+On my machine (Linux under WSL 2, Mathlib from its cache, at most 3 Lean processes) I measured:
 
 | step | time | memory |
 |---|---|---|
-| clean `lake build AlmanacSolution`, at most 6 Lean processes on 6 CPUs | 11 minutes (1,840 s of CPU) | at most 9.9 GB for all processes together (proportional set size) |
-| the five evaluation files again, one after the other, every thread on one CPU | 764 s: F2..F5 63 s, F1 183 s, F0 404 s, FR 110 s, FF 4 s | 0.54 GB each |
-| `lake env leanchecker --fresh AlmanacSolution`, 1 CPU | 35 minutes | 9.4 GB |
-| `lake env leanexport AlmanacSolution -- AlmanacSubmission.lower_seven` | 7 s, 90 MB | 6.9 GB |
-| NanoDa of the Lean toolchain on that export, 1 CPU, the three axioms and the twelve native ones permitted | 32 s, "Checked 14507 declarations with no errors" | 1.6 GB |
+| `lake build AlmanacSolution` from an empty build directory | about 14,300 s of CPU in all, so about half an hour on 8 CPUs | at most 3.1 GB for one evaluation file, about 3.7 GB for a module that loads Mathlib |
+| `lake env leanchecker --fresh AlmanacSolution`, 1 CPU | 16,816 s (4.7 hours) | 9.8 GB |
+| `lake env leanexport AlmanacSolution -- AlmanacSubmission.lower_seven` | 19 s, 129 MB | 7.0 GB |
+| NanoDa of the Lean toolchain on that export, 1 CPU, only the three axioms permitted | 13,277 s (3.7 hours), "Checked 55723 declarations with no errors" | 1.3 GB |
 
-So the twelve evaluations take about 13 minutes on one CPU, well inside the two hours of the re-evaluation
-stage, and the two kernel checks together stay under 11 GB. With 8 CPUs the build should take under 10 minutes.
+The cuts are split into files of at most 150 theorems, so no single file needs much memory. The two kernel checks of the judge, side by side on one CPU each, should take under 5 hours and
+about 11 GB together. There is nothing to re-evaluate: the batch has no `native_decide`.
 
 ## Sources and licences
 

@@ -1,5 +1,5 @@
 # The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 7 symbols
-# has at least 5,899 letters, with twelve finite searches evaluated by native_decide.
+# has at least 5,898 letters, checked by the kernel (no native_decide).
 name = "almanac_submission"
 
 # The four reserved Almanac libraries, with their files at the repository root: each has only its name
@@ -38,15 +38,6 @@ name = "Superperm"
 [[lean_lib]]
 name = "LowerBounds"
 
-# The three search engines LowerBounds.PSearch, LowerBounds.KSearch and LowerBounds.K16Search (PSearch imports
-# nothing, the other two import only the engine before them) as a library of their own, compiled to native code:
-# Lake loads it when it builds the modules that import it, so the native_decide evaluations run compiled code.
-# It is declared after LowerBounds, so this library, not LowerBounds, owns the three modules.
-[[lean_lib]]
-name = "SearchEngine"
-roots = ["LowerBounds.PSearch", "LowerBounds.KSearch", "LowerBounds.K16Search"]
-precompileModules = true
-
 # The proof of 872 (proofs/lean/small/K6 of the same repository) and the pieces of its two searches.
 # Its proofs were written without a limit on the heartbeats of the elaborator. Not imported by this batch.
 [[lean_lib]]
@@ -61,3 +52,10 @@ name = "LowerLinks"
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
+
+# The proof of 5,898: the kernel search on 7 symbols (a copy of K6 for 7 symbols), its soundness, the pieces of
+# its evaluations (K7/CE, K7/FE) and the final theorem. Its proofs were written without a limit on the heartbeats
+# of the elaborator.
+[[lean_lib]]
+name = "K7"
+leanOptions = { maxHeartbeats = 0 }

@@ -1,4 +1,5 @@
-Superpermutation bounds in Lean: a lower bound for 7 symbols (a Superpermutation Almanac batch)
+Superpermutation bounds in Lean: a lower bound for 7 symbols, checked by the kernel (a Superpermutation Almanac
+batch)
 
 This project contains Lean sources from four repositories and new files.
 
@@ -11,10 +12,12 @@ proofs/lean/small; not imported by this batch), and the generators tools/gen_k6.
 Changed files say at their top what was changed: K6/TightConf.lean (the numbers of parts in the hypotheses of
 one theorem), K6/TabOK.lean (each check over the 720 words evaluated in 8 pieces) and K6/Final872.lean (a
 comment). K6/CapEval.lean and K6/TightAll.lean are written anew by
-tools/gen_te.py. For this batch: LowerBounds/SSearch.lean (a local macro written as a local notation with the
-same expansion) and the trust comments of LowerBounds/PRingNative.lean and PProfNative.lean (comments only).
-LowerBounds/PFinalK16.lean, PK16F0Native.lean, PK16F1Native.lean, PK16Native.lean and PFinalK16Native.lean are
-new.
+tools/gen_te.py. For the batch of 5,899: LowerBounds/SSearch.lean (a local macro written as a local notation with the
+same expansion); LowerBounds/PFinalK16.lean is new (not imported by this batch). For this batch, copies of K6
+files for 7 symbols, each saying at its top what was changed: K7/Engine.lean, K7/Frontier.lean (with the jump
+ranges added), K7/Sound.lean, K7/TabEnc.lean and K7/TabOK.lean (from K6/TabOK.lean, with the Lehmer rank as the
+coding), K7/Prove.lean (from K6/Cap.lean, for all rules without links of weight 4) and K7/Final.lean and
+K7/Arith.lean (the coarse part of LowerBounds/PTheorem.lean, PFamily.lean and PArith.lean at cost 133).
 
 Zach Hunter and Uku Raudvere, superpermutations-hunter
 https://github.com/urdvr/superpermutations-hunter, commit d45222190031d162feb1f6f3cf5fe2d11fab726d
@@ -49,5 +52,8 @@ the original it was copied from.
 
 New files, under the Apache License 2.0 of jhalfar/superpermutations: K6/Frontier.lean, K6/TightCut.lean,
 K6/CapCut.lean, tools/gen_te.py and the files it writes (K6/CapEval.lean, K6/TightAll.lean, K6/CE/*.lean,
-K6/TE/*.lean), AlmanacSolution.lean, LowerLinks.lean, README.md and this NOTICE. AlmanacDefs.lean,
+K6/TE/*.lean); K7/Rules.lean, K7/Main.lean, tools/gen_k7.py, tools/gen_k7te.py, tools/gen_tabok7.py,
+tools/tabok7_tail.lean, tools/gen_arith7.py, tools/caps5898.txt and the files the generators write (K7/Tab.lean,
+K7/CapTab.lean, K7/ArithTab.lean, K7/TabCheck.lean, K7/TabCheck/*.lean, K7/TabOK/*.lean, K7/CE/*.lean,
+K7/FE/*.lean); AlmanacSolution.lean, LowerLinks.lean, README.md and this NOTICE. AlmanacDefs.lean,
 AlmanacStatement.lean and AlmanacChallenge.lean are the Almanac's files (superpermutations.com), unchanged.

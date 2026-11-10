@@ -1,0 +1,119 @@
+/-! ### Consequences -/
+
+theorem all_range {f : ℕ → Bool} {n : ℕ} (h : (List.range n).all f = true) {i : ℕ} (hi : i < n) :
+    f i = true :=
+  List.all_eq_true.mp h i (List.mem_range.mpr hi)
+
+theorem enc_pw {i : ℕ} (hi : i < 5040) : enc (pw i) = i := by
+  have := all_range chk_idx hi
+  simpa using this
+
+theorem permW_perm {w : List ℕ} (hw : PermW 7 w) : w.Perm [1, 2, 3, 4, 5, 6, 7] := by
+  rw [List.perm_ext_iff_of_nodup hw.1 (by decide)]
+  intro a
+  rw [hw.2.2 a]
+  simp only [List.mem_cons, List.not_mem_nil, or_false]
+  omega
+
+theorem enc_spec {w : List ℕ} (hw : PermW 7 w) : enc w < 5040 ∧ pw (enc w) = w := by
+  have hm : w ∈ List.permutations' [1, 2, 3, 4, 5, 6, 7] := List.mem_permutations'.mpr (permW_perm hw)
+  have := List.all_eq_true.mp chk_all w hm
+  simpa using this
+
+theorem enc_lt {w : List ℕ} (hw : PermW 7 w) : enc w < 5040 := (enc_spec hw).1
+
+theorem pw_enc {w : List ℕ} (hw : PermW 7 w) : pw (enc w) = w := (enc_spec hw).2
+
+theorem enc_inj {u v : List ℕ} (hu : PermW 7 u) (hv : PermW 7 v) (h : enc u = enc v) : u = v := by
+  rw [← pw_enc hu, ← pw_enc hv, h]
+
+theorem rot_rep {w : List ℕ} (hw : PermW 7 w) : w.rotate (rot (enc w)) = pw (rep (ci (enc w))) := by
+  have := all_range chk_rot (enc_lt hw)
+  simp only [Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq] at this
+  rw [← this.1, pw_enc hw]
+
+theorem permW_of_perm {w : List ℕ} (h : w.Perm [1, 2, 3, 4, 5, 6, 7]) : PermW 7 w := by
+  refine ⟨h.nodup_iff.mpr (by decide), h.length_eq, fun a => ?_⟩
+  rw [h.mem_iff]
+  simp only [List.mem_cons, List.not_mem_nil, or_false]
+  omega
+
+theorem permW_pw {i : ℕ} (hi : i < 5040) : PermW 7 (pw i) := by
+  have := all_range chk_perm hi
+  exact permW_of_perm (List.isPerm_iff.mp this)
+
+theorem ci_rot1 {w : List ℕ} (hw : PermW 7 w) : ci (enc (w.rotate 1)) = ci (enc w) := by
+  have := all_range chk_ci_rot (enc_lt hw)
+  simp only [beq_iff_eq] at this
+  rw [pw_enc hw] at this
+  exact this
+
+theorem ci_rotate {w : List ℕ} (hw : PermW 7 w) : ∀ n, ci (enc (w.rotate n)) = ci (enc w)
+  | 0 => by rw [List.rotate_zero]
+  | n + 1 => by
+    rw [← List.rotate_rotate, ci_rot1 (hw.rotate n), ci_rotate hw n]
+
+/-- **Class indices are the rotation classes.** -/
+theorem ci_eq_iff {u v : List ℕ} (hu : PermW 7 u) (hv : PermW 7 v) :
+    ci (enc u) = ci (enc v) ↔ u ~r v := by
+  constructor
+  · intro h
+    have e : u.rotate (rot (enc u)) = v.rotate (rot (enc v)) := by
+      rw [rot_rep hu, rot_rep hv, h]
+    have h1 : u ~r u.rotate (rot (enc u)) := ⟨_, rfl⟩
+    have h2 : v ~r v.rotate (rot (enc v)) := ⟨_, rfl⟩
+    rw [e] at h1
+    exact h1.trans h2.symm
+  · rintro ⟨n, rfl⟩
+    exact (ci_rotate hu n).symm
+
+/-- **`nx` is the door of the exit.** -/
+theorem nx_enc {a b : List ℕ} (ha : PermW 7 a) (h : DoorEq 7 a b) : nx (enc a) = enc b := by
+  have := all_range chk_nx (enc_lt ha)
+  simp only [Bool.and_eq_true, beq_iff_eq, decide_eq_true_eq] at this
+  rw [pw_enc ha] at this
+  unfold DoorEq at h
+  rw [h, show 7 - 1 = 6 from rfl, ← this.1, enc_pw this.2]
+
+/-- The words that the exit of `u` overlaps in 3 letters. -/
+theorem wlink3_shape {u v : List ℕ} (hu : PermW 7 u) (hv : PermW 7 v) (h : WLink 7 3 u v) :
+    ∃ t ∈ ((u.rotate 6).take 3).permutations', v = (u.rotate 6).drop 3 ++ t := by
+  unfold WLink at h
+  simp only [show 7 - 1 = 6 from rfl, show 7 - 3 = 4 from rfl] at h
+  have hl : (u.rotate 6).length = 7 := by rw [List.length_rotate, hu.2.1]
+  have hv4 : v.take 4 = (u.rotate 6).drop 3 := h.symm
+  refine ⟨v.drop 4, ?_, ?_⟩
+  · rw [List.mem_permutations']
+    have hpv := permW_perm hv
+    have hpu := (List.rotate_perm u 6).trans (permW_perm hu)
+    have e1 : v = (u.rotate 6).drop 3 ++ v.drop 4 := by
+      conv_lhs => rw [← List.take_append_drop 4 v]
+      rw [hv4]
+    have e2 : (u.rotate 6).take 3 ++ (u.rotate 6).drop 3 = u.rotate 6 := List.take_append_drop 3 _
+    have p1 : List.Perm ((u.rotate 6).drop 3 ++ v.drop 4) ((u.rotate 6).drop 3 ++ (u.rotate 6).take 3) := by
+      have p2 : List.Perm (u.rotate 6) ((u.rotate 6).drop 3 ++ (u.rotate 6).take 3) := by
+        conv_lhs => rw [← e2]
+        exact List.perm_append_comm
+      rw [← e1]
+      exact hpv.trans (hpu.symm.trans p2)
+    exact (List.perm_append_left_iff _).mp p1
+  · conv_lhs => rw [← List.take_append_drop 4 v]
+    rw [hv4]
+
+/-- **`s3` lists the weight-3 successors of another class.** -/
+theorem s3_enc {u v : List ℕ} (hu : PermW 7 u) (hv : PermW 7 v) (h : WLink 7 3 u v)
+    (hn : ¬ u ~r v) : ∃ j, j < 5 ∧ s3 (enc u) j = enc v := by
+  obtain ⟨t, ht, rfl⟩ := wlink3_shape hu hv h
+  have := all_range chk_s3 (enc_lt hu)
+  rw [pw_enc hu] at this
+  have h2 := List.all_eq_true.mp this t ht
+  simp only [Bool.or_eq_true, List.any_eq_true, List.mem_range, beq_iff_eq, Bool.and_eq_true,
+    decide_eq_true_eq] at h2
+  rcases h2 with ⟨s, _, hs⟩ | ⟨j, hj, hpj, hlt⟩
+  · exact absurd ⟨s, hs⟩ (fun h' => hn (List.IsRotated.symm h'))
+  · exact ⟨j, hj, by rw [← hpj, enc_pw hlt]⟩
+
+theorem enc_id : enc [1, 2, 3, 4, 5, 6, 7] = 0 := by
+  rw [← chk_id, enc_pw (by norm_num)]
+
+end K7
