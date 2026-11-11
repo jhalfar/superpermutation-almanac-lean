@@ -4,66 +4,83 @@ Lean proofs of bounds on the length of the shortest superpermutation, laid out a
 [Superpermutation Almanac](https://superpermutations.com). The full development, with the words and the other
 proofs, is in [jhalfar/superpermutations](https://github.com/jhalfar/superpermutations). My first batch (two upper
 bounds for large $`n`$) is commit `af99e83`, the second (a lower bound for 8 symbols) is commit `7e6664d`, the
-third (872 for 6 symbols, checked by the kernel) is commit `7b7b96d` and the fourth (5,899 for 7 symbols with
-`native_decide`) is commit `a09f9ef`. This commit holds the fifth.
+third (872 for 6 symbols, checked by the kernel) is commit `7b7b96d`, the fourth (5,899 for 7 symbols with
+`native_decide`) is commit `a09f9ef` and the fifth (5,898 for 7 symbols, checked by the kernel) is commit
+`5cc0ac3`. This commit holds the sixth.
 
-## This batch: 5,898 for 7 symbols, checked by the kernel
+## This batch: 12 and 13 symbols from Theorem C, checked by the kernel
 
-[`AlmanacSolution.lean`](AlmanacSolution.lean) states one result:
+[`AlmanacSolution.lean`](AlmanacSolution.lean) states two results:
 
 | statement | meaning |
 |---|---|
-| `Almanac.LowerBoundAt 7 5898` | every superpermutation on 7 symbols has length at least 5,898 |
+| `Almanac.LowerBoundAt 12 522622401` | every superpermutation on 12 symbols has length at least 522,622,401 |
+| `Almanac.LowerBoundAt 13 6746627048` | every superpermutation on 13 symbols has length at least 6,746,627,048 |
 
-The bound is Justin Lebar's, whose Lean proof ([jlebar/superperm7-ge-5898](https://github.com/jlebar/superperm7-ge-5898))
-evaluates its finite searches with `native_decide`; nothing of it is used here. This proof uses no
-`native_decide`, no `Lean.ofReduceBool` and no compiled code: every finite search is evaluated by the kernel
-(`decide +kernel`), and the theorem depends on the axioms `propext`, `Classical.choice` and `Quot.sound` only.
-The kernel-only bound the Almanac lists so far is William Echols's 5,897
-([williamechols/superpermutations](https://github.com/williamechols/superpermutations)), which takes the same
-route one unit lower, at cost 132, where the chain caps alone are enough. Nothing of his code is used here.
+Both come from Theorem C of the main repository (`proofs/lean/lower`), the same proof that gave the bounds
+522,622,378 and 6,746,626,957 listed so far, with better constants. Every finite search is evaluated by the
+kernel (`decide +kernel`); there is no `native_decide`, no `Lean.ofReduceBool` and no compiled code, and both
+theorems depend on the axioms `propext`, `Classical.choice` and `Quot.sound` only.
 
-The proof is the coarse part of my proof of 5,899 (`proofs/lean/n7` of the main repository, here in
-`LowerBounds/`), run at cost 133 instead of 134:
+The idea of the new constants is William Echols's. On 10 November 2026 he showed
+([williamechols/superpermutations](https://github.com/williamechols/superpermutations), commit `ac27b17`, the
+Almanac's $`S(11) \ge 43{,}917{,}904`$) that Theorem C gives one more unit at 11 symbols when the constant $`c`$ is put just
+above the least value that reaches the bound, instead of on a round grid. I did the same at 12 and 13 symbols.
+Nothing of his code is used here.
 
-1. The model of standard configurations (Theorems W and N): if no valid configuration on 7 symbols has cost
-   at most $`5! + 13 = 133`$, every superpermutation on 7 symbols has at least $`\mathrm{hpv}(7) + 14 = 5{,}898`$
-   letters.
-2. A configuration of cost at most 133 has value at least 55 and weight at most 78 (Lemma ACC), so its family
-   of trails has weight $`\sum (\text{holes} + 6) \le 84`$ and value $`\sum (\text{rows} - \text{holes} - 5) \ge 50`$,
-   whatever the costs of its links (Lemma FAM). In the proof of 5,899 this is the case that Lemma FF refutes with
-   the chain caps and the five profile statements alone; here it is the whole proof (`K7/Final.lean`). The
-   sequences with links, the rings and the hanging items of 5,899 are not needed.
-3. The chain caps $`W(x)`$ for chains with $`x \le 78`$ holes (`tools/caps5898.txt`): the caps of 5,899 up to
-   36 holes, and above that larger caps, as large as the knapsack allows (`K7/Arith.lean`, checked by
-   `decide +kernel`: the only families of weight at most 84 and value 50 are the five profiles). Larger caps are
-   weaker statements, and their search is about a hundred times smaller than that of 5,899 cut at 78 holes.
-4. Two kinds of searches by the kernel finish the proof: the chain caps (`K7/CE/`, 12,296,167 calls of the
-   search) and the five profile statements of 5,899 (`K7/FE/`, 779,347, 202,109, 403,989, 754,979 and
-   3,263,423 calls).
+### Theorem C and its constants
 
-The search engine is the one of my proof of 872 (`K6/Engine.lean`) written for 7 symbols (`K7/Engine.lean`): a
-depth-first search over rows of blocks whose rotation classes are new, with the tables of the 5,040 words as
-natural numbers read with shifts and the used classes as a natural number read as a set of bits, so that the
-kernel computes with GMP. `K7/TabOK/` checks the tables against the words, `K7/Sound.lean` proves that the
-search is complete and `K7/Prove.lean` that a search with the rules of `PSearch.lean` (read from bit tables,
-which `K7/TabCheck/` checks against the rules) that answers `false` proves the statement of `PSeq.lean` for
-those rules. From there the theorems of the proof of 5,899 give the chain caps and the profile statements.
+Write $`\mathrm{hpv}(k) = k! + (k-1)! + (k-2)! + k - 3`$ and take rationals $`c = c_n/q`$, $`b = b_n/q`$.
+A window is a run of consecutive pieces of an exact weight-three chain (Xiaolong Liu's preimage-chain library)
+that starts and ends with a partial piece; $`r`$ is its number of pieces and $`\delta`$ the sum of their
+deficits. Theorem C says: if every window satisfies
 
-The searches are too large for one evaluation, so they are cut into pieces as in the proof of 872
-(`K7/Frontier.lean`): an evaluation computes the frontier of the search below a node and compares it with a list
-written out in a file, and the search below the nodes of such lists is evaluated a few nodes at a time. For
-the profile searches a node where a chain is complete tries all 5,040 words for the next chain; such a node is
-cut by ranges of words (`jumpsR`). `tools/gen_k7te.py` finds the frontiers with a copy of the search in Python
-and writes the files; nothing it computes is trusted. No evaluation goes above 12,000 weighted calls of the
-search.
+```math
+2r + 2(k-4) + c\,\delta \le (k-3)\,\delta + b
+```
 
-[`LowerLinks.lean`](LowerLinks.lean) holds the linking lemma. It proves that the covering predicate of the proof
-(`SuperpermutationBounds.Covers` from Jay Pantone's `Challenge.lean`) is `Almanac.IsSuperpermutation` over
-`List (Fin 7)`, and then the template statement from `K7.covers_lower_bound_7_kernel`.
+and three conditions on the constants hold (`ConditionsC`), then every superpermutation on $`k`$ symbols has at
+least
 
-The files of the batches of 872 (`K6/`) and of 5,899 (`LowerBounds/PFinalK16.lean` and the search engines
-`KSearch`, `K16Search`) are still in the repository, but nothing of this batch imports them.
+```math
+\mathrm{hpv}(k) + \left\lceil \frac{2(k-2)! - 2(k-2) - b}{k^2 - 4k + 1 - c\,(k-1)} \right\rceil
+```
+
+letters (`boundC`). The hypothesis is proved for a model of chains by a finite search (`LowerBounds/SSearch.lean`,
+proved complete in `SSound.lean`, `SModel.lean`; `SBridge.lean` carries it to Liu's chains). The search does not
+depend on $`b`$, so one run gives the least $`b`$ for a given $`c`$; that least $`b`$ grows with $`c`$, and so does
+the size of the search. For each target bound I computed the least $`c`$ that reaches it (each finished search
+gives a lower bound on $`b`$ as a linear function of $`c`$, and these lines locate the threshold exactly) and took
+a simple fraction just above it:
+
+| symbols | `ModelStatement k cn bn q` | c | b | states of the search | deepest window (pieces) | bound |
+|---|---|---|---|---|---|---|
+| 12 | `12 281 17976 6465` | 281/6465 = 0.0434648... | 17976/6465 | 124,947 | 2,912 | 522,622,401 |
+| 13 | `13 409 9160 2536` | 409/2536 = 0.1612776... | 9160/2536 | 81,260 | 1,544 | 6,746,627,048 |
+
+The least values of $`c`$ for these bounds are 0.04346480 and 0.16127750. Larger bounds exist (522,622,405 with
+13 million states, 6,746,627,226 with 44 million), but their searches are far too large for the kernel. The
+search for 13 symbols is the same tree as the one for 6,746,627,046 in the main repository; only $`c`$ and $`b`$
+moved.
+
+### Files
+
+* `LowerBounds/`: Theorem C and its window search, copied from `proofs/lean/lower` (see `NOTICE`).
+* `LowerBounds/SGen/`: the two certificates, written by `tools/s_plan2.py` (a Python copy of the search decides
+  where to cut it into lemmas and writes the state at every cut; nothing it computes is trusted, a wrong cut or
+  state makes a lemma fail). `C12_281_17976_6465*` has 1,195 lemmas in 73 part files and 413 files of
+  states; `C13_409_9160_2536*` has 691 lemmas in 48 part files and 113 files of states.
+* `LowerBounds/SCertTune.lean`, `LowerBounds/SFinalTune.lean`: the window statements, the model statements, the
+  conditions, the value of `boundC` and the bounds for `SuperpermutationBounds.Covers`, written by
+  `tools/mkstmt.py`.
+* [`LowerLinks.lean`](LowerLinks.lean): the linking lemmas. They prove that the covering predicate of the proof
+  (`SuperpermutationBounds.Covers` from Jay Pantone's `Challenge.lean`) is `Almanac.IsSuperpermutation` over
+  `List (Fin n)`, and then the two template statements.
+
+To regenerate the certificates: `python3 tools/s_plan2.py 12 281 17976 6465 C12_281_17976_6465 --leaf 450
+--band 250 --per-file 3000` and `python3 tools/s_plan2.py 13 409 9160 2536 C13_409_9160_2536 --leaf 450 --band
+250 --per-file 3000` (Python 3 only; the generator writes into `tools/LowerBounds/SGen/`, from where the files
+move to `LowerBounds/SGen/`), then `python3 tools/mkstmt.py . C12_281_17976_6465 C13_409_9160_2536`.
 
 ## Build
 
@@ -72,7 +89,7 @@ Lean `leanprover/lean4:v4.35.0`, Mathlib at `56a005855ea17e0b0958f73ec801ae140b0
 ```
 lake exe cache get
 lake build AlmanacSolution
-printf 'import AlmanacSolution\n#print axioms AlmanacSubmission.lower_seven\n' > Axioms.lean
+printf 'import AlmanacSolution\n#print axioms AlmanacSubmission.lower_twelve\n#print axioms AlmanacSubmission.lower_thirteen\n' > Axioms.lean
 lake env lean Axioms.lean
 ```
 
@@ -82,13 +99,13 @@ On my machine (Linux under WSL 2, Mathlib from its cache, at most 3 Lean process
 
 | step | time | memory |
 |---|---|---|
-| `lake build AlmanacSolution` from an empty build directory | about 14,300 s of CPU in all, so about half an hour on 8 CPUs | at most 3.1 GB for one evaluation file, about 3.7 GB for a module that loads Mathlib |
-| `lake env leanchecker --fresh AlmanacSolution`, 1 CPU | 16,816 s (4.7 hours) | 9.8 GB |
-| `lake env leanexport AlmanacSolution -- AlmanacSubmission.lower_seven` | 19 s, 129 MB | 7.0 GB |
-| NanoDa of the Lean toolchain on that export, 1 CPU, only the three axioms permitted | 13,277 s (3.7 hours), "Checked 55723 declarations with no errors" | 1.3 GB |
+| `lake build AlmanacSolution` from an empty build directory | 5,748 s wall with 3 processes, 16,000 s of CPU in all (so about 35 minutes on 8 CPUs) | at most 8.5 GB for the three processes together |
+| `lake env leanchecker --fresh AlmanacSolution`, 1 CPU | 10,952 s (3.0 hours) | 8.7 GB |
+| `lake env leanexport AlmanacSolution -- AlmanacSubmission.lower_twelve AlmanacSubmission.lower_thirteen` | 160 s, 323 MB | 6.7 GB |
+| NanoDa of the Lean toolchain on that export, 1 CPU, only the three axioms permitted | 6,885 s (1.9 hours), "Checked 19792 declarations with no errors" | 1.1 GB |
 
-The cuts are split into files of at most 150 theorems, so no single file needs much memory. The two kernel checks of the judge, side by side on one CPU each, should take under 5 hours and
-about 11 GB together. There is nothing to re-evaluate: the batch has no `native_decide`.
+The two kernel checks ran side by side, one CPU each, as the judge runs them. There is nothing to re-evaluate:
+the batch has no `native_decide`.
 
 ## Sources and licences
 

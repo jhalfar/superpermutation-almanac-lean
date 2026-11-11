@@ -1,5 +1,5 @@
-# The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 7 symbols
-# has at least 5,898 letters, checked by the kernel (no native_decide).
+# The root Lake project of a Superpermutation Almanac batch submission: lower bounds for 12 and 13 symbols from
+# Theorem C with re-tuned constants, checked by the kernel (no native_decide).
 name = "almanac_submission"
 
 # The four reserved Almanac libraries, with their files at the repository root: each has only its name
@@ -31,20 +31,14 @@ name = "Hunter"
 name = "PreimageChain"
 
 # From github.com/jhalfar/superpermutations: the bridge to Hunter.Ssuper (proofs/lean/words) and the
-# lower-bound development (proofs/lean/lower, proofs/lean/n7).
+# lower-bound development with Theorem C (proofs/lean/lower), with the generated certificates in LowerBounds/SGen.
 [[lean_lib]]
 name = "Superperm"
 
 [[lean_lib]]
 name = "LowerBounds"
 
-# The proof of 872 (proofs/lean/small/K6 of the same repository) and the pieces of its two searches.
-# Its proofs were written without a limit on the heartbeats of the elaborator. Not imported by this batch.
-[[lean_lib]]
-name = "K6"
-leanOptions = { maxHeartbeats = 0 }
-
-# The linking lemma: the Almanac template from the theorem of LowerBounds.PFinalK16Native.
+# The linking lemmas: the Almanac templates from the theorems of LowerBounds.SFinalTune.
 [[lean_lib]]
 name = "LowerLinks"
 
@@ -52,10 +46,3 @@ name = "LowerLinks"
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
 rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
-
-# The proof of 5,898: the kernel search on 7 symbols (a copy of K6 for 7 symbols), its soundness, the pieces of
-# its evaluations (K7/CE, K7/FE) and the final theorem. Its proofs were written without a limit on the heartbeats
-# of the elaborator.
-[[lean_lib]]
-name = "K7"
-leanOptions = { maxHeartbeats = 0 }
