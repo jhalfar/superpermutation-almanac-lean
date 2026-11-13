@@ -1,10 +1,32 @@
-# The root Lake project of a Superpermutation Almanac batch submission: lower bounds for 12 and 13 symbols from
-# Theorem C with re-tuned constants, checked by the kernel (no native_decide).
-name = "almanac_submission"
+# The root Lake project of a Superpermutation Almanac batch submission.
+# Jay Pantone's released proof is in lean/, unchanged; lean/Asym37/ adds the exponent-37 count (README.md).
+# AlmanacAdapter links the final theorem to the Almanac's definitions, and AlmanacSolution states the result.
+name = "superpermutation_asymptotics"
+version = "0.1.0"
+defaultTargets = ["AlmanacSolution"]
 
-# The four reserved Almanac libraries, with their files at the repository root: each has only its name
-# and no srcDir. The judge overwrites AlmanacDefs.lean, AlmanacStatement.lean and AlmanacChallenge.lean
-# with its own.
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
+
+# The released proof modules, read from lean/.
+[[lean_lib]]
+name = "CoefficientTwoPrecision"
+srcDir = "lean"
+roots = []
+globs = [
+  "Challenge", "IntegerControlGrid", "Lean435Compatibility", "PositiveParking",
+  "Precision", "ConstAsym.+", "Hunter.+", "LowerBounds.+", "PreimageChain.+",
+  "Quantitative.+", "Superperm.+", "SuperpermutationUpperBound.+",
+  "SuperpermutationUpperBound43586371.+", "Asym37.+"
+]
+
+[[lean_lib]]
+name = "AlmanacAdapter"
+
+# The four reserved Almanac libraries. The judge writes its own AlmanacDefs,
+# AlmanacStatement and AlmanacChallenge over the copies here.
 [[lean_lib]]
 name = "AlmanacDefs"
 
@@ -16,33 +38,3 @@ name = "AlmanacChallenge"
 
 [[lean_lib]]
 name = "AlmanacSolution"
-
-# Jay Pantone's statements file (Covers), from github.com/jaypantone/superperm-upper-43-80 at c8fb7ff.
-[[lean_lib]]
-name = "Challenge"
-
-# The modules of the Hunter-Raudvere library that the proof needs (github.com/urdvr/superpermutations-hunter).
-[[lean_lib]]
-name = "Hunter"
-
-# The modules of Xiaolong Liu's preimage-chain library that the proof needs
-# (github.com/Haruhiyuki/superpermutations-preimage-chain-lower-bounds).
-[[lean_lib]]
-name = "PreimageChain"
-
-# From github.com/jhalfar/superpermutations: the bridge to Hunter.Ssuper (proofs/lean/words) and the
-# lower-bound development with Theorem C (proofs/lean/lower), with the generated certificates in LowerBounds/SGen.
-[[lean_lib]]
-name = "Superperm"
-
-[[lean_lib]]
-name = "LowerBounds"
-
-# The linking lemmas: the Almanac templates from the theorems of LowerBounds.SFinalTune.
-[[lean_lib]]
-name = "LowerLinks"
-
-[[require]]
-name = "mathlib"
-git = "https://github.com/leanprover-community/mathlib4"
-rev = "56a005855ea17e0b0958f73ec801ae140b0a1679"
