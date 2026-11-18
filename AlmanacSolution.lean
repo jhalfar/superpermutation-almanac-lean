@@ -1,13 +1,12 @@
--- Superpermutation Almanac batch: the explicit error after 2(n-4)!, exponent 1/37.
--- Jay Pantone's construction and proof (github.com/jaypantone/2026-10-superpermutation-asymptotics, 9ccbe66),
--- with a new count of the collision deletions in lean/Asym37; see README.md.
+-- A lower bound for 7 symbols: the proof of 5,900 of proofs/lean/n7_5900 of github.com/jhalfar/superpermutations,
+-- on top of the proof of 5,899 of the earlier batch (its six sequence searches run by the search engine of
+-- proofs/lean/n7_5901); 89 searches are evaluated by native_decide. The linking lemma is in LowerLinks.lean.
 import AlmanacDefs
-import AlmanacAdapter
+import LowerLinks
 
 namespace AlmanacSubmission
 
-/-- For every n ≥ 5920·352³·6³⁷,
-|S(n) - (n! + (n-1)! + (n-2)! + 2(n-4)!)| ≤ 306 (n-4)! n^(-1/37). -/
-theorem explicit_error_37 : AlmanacAdapter.ExplicitError37 := AlmanacAdapter.explicit_error_37
+/-- Every superpermutation on 7 symbols has length at least 5,900. -/
+theorem lower_seven : Almanac.LowerBoundAt 7 5900 := LowerLinks.lower_seven
 
 end AlmanacSubmission
