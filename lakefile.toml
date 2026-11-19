@@ -1,5 +1,5 @@
 # The root Lake project of a Superpermutation Almanac batch submission: every superpermutation on 7 symbols
-# has at least 5,900 letters, with 89 finite searches evaluated by native_decide.
+# has at least 5,899 letters, with every finite search evaluated by the kernel (no native_decide).
 name = "almanac_submission"
 
 # The four reserved Almanac libraries, with their files at the repository root: each has only its name
@@ -31,24 +31,19 @@ name = "Hunter"
 name = "PreimageChain"
 
 # From github.com/jhalfar/superpermutations: the bridge to Hunter.Ssuper (proofs/lean/words) and the
-# lower-bound development (proofs/lean/lower, proofs/lean/n7, proofs/lean/n7_5900, proofs/lean/n7_5901).
+# lower-bound development (proofs/lean/lower, proofs/lean/n7).
 [[lean_lib]]
 name = "Superperm"
 
 [[lean_lib]]
 name = "LowerBounds"
 
-# The four search engines LowerBounds.PSearch, LowerBounds.KSearch, LowerBounds.K16Search and
-# LowerBounds.J15Search (PSearch imports nothing, the other three import only the engines before them) as a
-# library of their own, compiled to native code: Lake loads it when it builds the modules that import it, so
-# the native_decide evaluations run compiled code. It is declared after LowerBounds, so this library, not
-# LowerBounds, owns the four modules.
+# The kernel searches: the engines, their proofs, the tables, their checks and the evaluated lemmas
+# (see README.md). The evaluated modules are many and each is a long kernel computation.
 [[lean_lib]]
-name = "SearchEngine"
-roots = ["LowerBounds.PSearch", "LowerBounds.KSearch", "LowerBounds.K16Search", "LowerBounds.J15Search"]
-precompileModules = true
+name = "Cert"
 
-# The linking lemma: the Almanac template from the theorem of LowerBounds.F5900K16Native.
+# The linking lemma: the Almanac template from the theorem of Cert.Final5899.
 [[lean_lib]]
 name = "LowerLinks"
 

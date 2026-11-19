@@ -6,106 +6,114 @@ proofs, is in [jhalfar/superpermutations](https://github.com/jhalfar/superpermut
 bounds for large $`n`$) is commit `af99e83`, the second (a lower bound for 8 symbols) is commit `7e6664d`, the
 third (872 for 6 symbols, checked by the kernel) is commit `7b7b96d`, the fourth (5,899 for 7 symbols with
 `native_decide`) is commit `a09f9ef`, the fifth (5,898 for 7 symbols, checked by the kernel) is commit
-`5cc0ac3`, the sixth (12 and 13 symbols from Theorem C) is commit `7ed009a` and the seventh (the error after
-$`2(n-4)!`$ with exponent 1/37) is commit `ad9477f`. This commit holds the eighth.
+`5cc0ac3`, the sixth (12 and 13 symbols from Theorem C) is commit `7ed009a`, the seventh (the error after
+$`2(n-4)!`$ with exponent 1/37) is commit `ad9477f` and the eighth (5,900 for 7 symbols with `native_decide`) is
+commit `956ad6c`. This commit holds the ninth.
 
-## This batch: 5,900 for 7 symbols
+## This batch: 5,899 for 7 symbols, checked by the kernel
 
 [`AlmanacSolution.lean`](AlmanacSolution.lean) states one result:
 
 | statement | meaning |
 |---|---|
-| `Almanac.LowerBoundAt 7 5900` | every superpermutation on 7 symbols has length at least 5,900 |
+| `Almanac.LowerBoundAt 7 5899` | every superpermutation on 7 symbols has length at least 5,899 |
 
-The proof is my proof of 5,900 in `proofs/lean/n7_5900` of the main repository. Its written proof is
-`proofs/lean/n7_5900/PROOF_5900.md` there. It stands on the proof of 5,899 (the model of standard
-configurations and set B of its tables) and adds the accounting at defect 15, the statements for the kernel
-alone (table T' and Theorem K) and the joint statements S1 to S5:
+The bound and its proof are those of my fourth batch: the model of standard configurations, the accounting at
+cost 134 and twelve finite searches (F0 to F5 for sequences of rows, FR for rings, and the five profile searches
+FF0 to FF4). In the fourth batch `native_decide` evaluated the twelve searches. Here the kernel evaluates all of
+them (`decide +kernel`), so `AlmanacSubmission.lower_seven` depends only on `propext`, `Classical.choice` and
+`Quot.sound`.
 
-| part | what | files in `LowerBounds/` |
+The kernel is far slower than compiled code: `native_decide` does the search F0 in about 95 seconds, and the
+kernel needs about 1,400 CPU-hours for it. So I could not just hand the searches to the kernel as they are. The
+new directory [`Cert/`](Cert/) holds what it evaluates instead:
+
+| part | what | files in `Cert/` |
 |---|---|---|
-| A | the accounting at defect 15: components, cuts, pieces, the knapsack | `A15Arith`, `A15Core`, `A15Cut`, `A15Pieces`, `A15Tables`, `A15Final` |
-| B | the kernel alone: table T', Theorem K, the search engine for sequences and its soundness | `KDefs`, `KTables`, `KSearch`, `KSound`, `KPot`, `KRev`, `KRules`, `KFinal` |
-| C | the joint statements: the joint engine, its soundness, its rules | `J15Search`, `J15Sound`, `J15Rules`, `J15Final` |
-| D | the assembly from the search equations, checked by the kernel | `F5900Joint`, `KFinalK16`, `F5900K16` |
-| E | the evaluations and the theorem | `KK*Native`, `KSmallNative`, `J15S*Native`, `KFinalNative`, `J15FinalNative`, `F5900K16Native` |
+| engines | the searches of `K16Search.lean` (F0 to F5) and `PSearch.lean` (FR, FF) written for the kernel: the marks are one number, the successors of a word and the blocks of their rows come from one record per word, every loop is `Nat.rec`, and the potentials are natural numbers shifted by $`2^{18}`$; a search can skip the prefixes of a list | `KEngine`, `KEngineN`, `OkN`, `PEngine`, `ChildN` |
+| soundness | if the kernel search does not find, the statement of the written proof holds: `kstmt16_of_searchC` (F0 to F5, through `KStmt16` of `K16Sound.lean`) and `pstmt_of_psearchC` (FR, FF, `PS.PStmt`); the engine with natural potentials is the same search (`goNat_eq`); and a search cut at a list of prefixes, with every prefix of the list searched on its own, is the whole search (`goC_cut`, `pgoC_cut`) | `KComplete`, `KEquiv`, `Cut`, `PComplete`, `PStmtC`, `PCut`, `Assemble`, `AssembleN` |
+| tables | the word records and the rule records as numbers; the kernel checks that they are what the definitions of `PSearch.lean` and `KSearch.lean` give (every word, every rule record of each search, the ring tables, the caps) | `W`, `WO`, `R_F0` .. `R_F5`, `RingT`, `Cap0`, `WDefs`, `RDefs`, `WC/`, `WOC/`, `RC/`, `RingC/`, `WSpec`, `RSpec`, `RingSpec`, `Cap`, `WCheck` |
+| evaluated lemmas | each search cut into 595,177 lemmas of at most 20,000 visited prefixes (26,000 for one profile): a lemma for a subtree (`g...`), a lemma for a part of the tree above together with the list of the subtrees below it (`x...`), and the top (`top`); a prefix is named by its path from the prefix above it | `F0/` .. `F5/`, `FR/`, `FF0/` .. `FF4/`: `S*` the names, `M*` the lemmas (50 per module), `Comb` puts them together |
+| assembly | the six caps, the ring cap and the five profiles, and the theorem `covers_lower_bound_7_kernel` | `F0Final` .. `F5Final`, `FRFinal`, `FFFinal`, `Final5899` |
 
-One thing differs from the main repository. There the part of 5,899 comes from its 22 search equations
-(`PFinalNative.lean` of `proofs/lean/n7`). Here it comes from the twelve equations of my fourth batch, in which
-the six searches F0 to F5 run on the engine of `proofs/lean/n7_5901` (the same statements, a smaller tree). Set
-B, `Caps` and `Profiles` are the same statements either way, so only the assembly changes:
+C copies of the searches chose the cutting: they count the visited prefixes below every prefix. Nothing about
+the cutting has to be trusted. A lemma names its prefix and its list, and if a name were wrong the kernel would
+refuse that lemma.
 
-* [`LowerBounds/KFinalK16.lean`](LowerBounds/KFinalK16.lean) (new): `KS.setB_of_k16`, set B from F0 to F5 of
-  `K16Search.lean` and FR, in the same way as `KS.setB_of_search` of `KFinal.lean`.
-* [`LowerBounds/F5900K16.lean`](LowerBounds/F5900K16.lean) (new): `covers_5900_of_k16`, the bound from the 89
-  search equations as hypotheses. It is `covers_5900_of_search` of the main repository with `caps_of_k16`,
-  `profiles_of_k16` and `KS.setB_of_k16` in their places. Its axioms are `propext`, `Classical.choice` and
-  `Quot.sound`.
-* [`LowerBounds/F5900K16Native.lean`](LowerBounds/F5900K16Native.lean) (new):
-  `covers_lower_bound_7_5900_native`, that theorem applied to the 89 evaluated equations.
-* `LowerBounds/KFinalNative.lean`: without the import of `PFinalNative.lean` and without the three theorems
-  that used it (they are now in `F5900K16.lean`).
+[`LowerLinks.lean`](LowerLinks.lean) holds the linking lemma, as in the fourth batch: the covering predicate of
+the proof (`SuperpermutationBounds.Covers` from Jay Pantone's `Challenge.lean`) is `Almanac.IsSuperpermutation`
+over `List (Fin 7)`, and the template statement then follows from
+`SuperpermLowerBounds.covers_lower_bound_7_kernel`. The other files are those of the fourth batch, without the
+six `native_decide` files, `LowerBounds/PFinalK16.lean`, `K6/` and `tools/`.
 
-[`LowerLinks.lean`](LowerLinks.lean) holds the linking lemma: the covering predicate of the proof
-(`SuperpermutationBounds.Covers` from Jay Pantone's `Challenge.lean`) is `Almanac.IsSuperpermutation` over
-`List (Fin 7)`, and then the template statement from `SuperpermLowerBounds.covers_lower_bound_7_5900_native`.
+## Cost
 
-## What is trusted
+Nearly all of the work is in the 11,909 modules `Cert/*/M*.lean`. I measured the kernel's cost per visited
+prefix on real modules, one Lean process each (Windows, Lean 4.35.0, beside other jobs at idle priority). For
+F0, F1, F4 and FR this is the wall time of one whole module of 50 lemmas, for F2 the CPU time of a file of 10
+lemmas:
 
-89 equations of the form "this search returns `false`" are evaluated by `native_decide`:
+| search | visited prefixes | modules | kernel time per visit (measured on) | memory of one process | CPU-hours |
+|---|---|---|---|---|---|
+| F0 | 4,120,526,064 | 5,340 | 1.19 ms (`Cert.F0.M100`, 783,357 visits: 930 s) | 2.5 GB | 1,362 |
+| F1 | 1,508,386,528 | 1,966 | 1.39 ms (`Cert.F1.M100`, 763,938 visits: 1,060 s) | 3.2 GB | 582 |
+| F2, F3 | 345,729,607 and 175,518,625 | 449 and 229 | 2.10 ms on F2 (10 lemmas, 131,204 visits: 275 s) | 4.6 GB | about 300 |
+| F4, F5 | 1,073,801 and 67,906 | 2 and 1 | 3.0 ms (both built in full; `Cert.F4.M0`, 790,681 visits: 2,375 s) | 5.8 GB | 1 |
+| FR | 2,825,190,014 | 3,707 | 0.50 ms (`Cert.FR.M100`, 781,251 visits: 390 s) | 1.5 GB | 392 |
+| FF0 .. FF4 | 5,403,847 | 215 | as FR | | about 1 |
 
-| equations | files | engine |
-|---|---|---|
-| 12 of the proof of 5,899 (F0 to F5, FR, five profiles) | `PK16F0Native`, `PK16F1Native`, `PK16Native`, `PRingNative`, `PProfNative` | `K16Search`, `PSearch` |
-| 41 for table T' and Theorem K | 36 files: `KK87Native`, `KSmallNative`, `KK0_00Native` .. `KK5Native` | `KSearch` |
-| 36 for the joint statements | 36 files `J15S1_00Native` .. `J15S5Native` | `J15Search` |
+In all that is about 2,600 CPU-hours: about 85 hours with 32 processes at once, or 14 days with 8. A module of
+50 lemmas takes 6 to 40 minutes. The kernel frees its memory after each lemma, so a process needs 1.5 to 6 GB,
+depending on the search and on its largest lemma.
 
-For them the Lean compiler, the C compiler of the Lean toolchain and the Lean runtime are trusted. The four
-engines (`LowerBounds/PSearch.lean`, `KSearch.lean`, `K16Search.lean`, `J15Search.lean`) form the library
-`SearchEngine` of `lakefile.toml` with `precompileModules = true`, so Lake compiles them to a shared library and
-loads it when it builds the files that evaluate the searches. Everything else, including the proofs that each
-search answering `false` means what is claimed, is checked by the kernel.
-
-The axioms of `AlmanacSubmission.lower_seven` are `propext`, `Classical.choice`, `Quot.sound` and 89 axioms
-`<name>._native.native_decide.ax_1_1`: `K16.f0k` .. `K16.f5k`, `PS.ring`, `PS.prof36`, `PS.prof26`, `PS.prof34`,
-`PS.prof14`, `PS.prof4`; `KS.k8`, `KS.k7`, `KS.c59`, `KS.c62`, `KS.ring`, `KS.k6`, `KS.c76`, `KS.k4`, `KS.k5`,
-`KS.k3`, `KS.k1_0` .. `KS.k1_7`, `KS.k0_0` .. `KS.k0_10`, `KS.k2_0` .. `KS.k2_11`; `J15.s5`, `J15.s4`,
-`J15.s3`, `J15.s2a1_0` .. `J15.s2a1_2`, `J15.s1_0` .. `J15.s1_11`, `J15.s2a2_0` .. `J15.s2a2_17`.
+The rest is small. The table checks take about two CPU-hours. The modules after the evaluated ones (the `Comb`
+modules, the assembly and `AlmanacSolution`) take about 35 minutes together. The largest of them is
+`Cert.F0.Comb`: 15 minutes and about 15 GB in one process. This batch is meant to be built by hand.
 
 ## Build
 
-Lean `leanprover/lean4:v4.35.0`, Mathlib at `56a005855ea17e0b0958f73ec801ae140b0a1679`:
+Lean `leanprover/lean4:v4.35.0`, Mathlib at `56a005855ea17e0b0958f73ec801ae140b0a1679`.
+
+`lake build` starts every module that is ready at once, and there are 11,909 evaluated modules. So build them
+first with [`build_parts.sh`](build_parts.sh), which gives Lake `N` of them at a time:
 
 ```
 lake exe cache get
-lake build AlmanacSolution
+sh build_parts.sh 8          # 8 Lean processes at a time: up to 48 GB of memory
+lake build AlmanacSolution   # the table checks, the assembly and the theorem
 printf 'import AlmanacSolution\n#print axioms AlmanacSubmission.lower_seven\n' > Axioms.lean
 lake env lean Axioms.lean
 ```
 
-The 72 evaluation modules of 5,900 are far too large for the automatic check of the site: this batch is meant
-to be built by hand. Everything else takes minutes. What I measured (Linux under WSL 2, Mathlib from its cache,
-idle priority, other jobs on the machine):
+Choose `N` as the free memory divided by 6 GB, and at most the number of cores. A run that is stopped can be
+started again with the same command: Lake keeps the modules that are done. The names of F0 are 14 modules that
+build one after another (half a minute to two and a half minutes each) before the first module of F0 can
+start; FR has 10 of them, about 25 seconds each.
 
-| step | time | memory |
-|---|---|---|
-| `lake build AlmanacSolution` from an empty build directory, with the 89 evaluations replaced by `sorry` (a test copy, not this batch), 15 CPUs | 6 minutes (375 s) | at most 7.8 GB for all processes together (proportional set size) |
-| the twelve evaluations of 5,899 | about 13 CPU-minutes | 0.5 GB each |
-| on the same test copy, `lake env leanchecker --fresh AlmanacSolution`, 1 CPU | 25 minutes | 9.3 GB |
-| on the same test copy, `leanexport` of `lower_seven` (108 MB) and NanoDa of the toolchain, 1 CPU | 6 s and 22 s, "Checked 15521 declarations with no errors" | 0.4 GB for NanoDa |
-| four of the 72 evaluations of 5,900 (`J15S4Native`, `KK1_05Native`, `KK0_04Native`, `J15S2A2_11Native`) | 155 s, 212 s, 162 s, 394 s on 4, 4, 16, 16 threads | 0.9 GB each |
-| 19 more of the 72 (among them `KSmallNative`, `KK0_03Native`, `KK0_05Native`, `KK0_09Native`, `KK0_10Native`, `KK4Native`, `KK5Native` and nine of the joint statements) in one `lake build`, 16 CPUs | 9.4 hours, 129 CPU-hours | at most 1.8 GB for all processes together |
+The evaluated modules do not depend on each other (a module `M*` imports only the names of its search), so any
+set of them can be built anywhere and in any order:
 
-When I first evaluated the 72 modules (October 2026, Lean 4.31, one process per module with 1 to 20 threads,
-beside other jobs) the sum of wall time times threads was 4,190 thread-hours. On Lean 4.35.0 the four modules
-above took 0.39 to 0.70 times their thread-hours of then, so I expect the 72 modules to take about 2,000 to 3,000
-CPU-hours: 2.5 to 4 days on 32 threads. Each module is one Lean process of under 1 GB. Each search is cut
-into parts (16,381 for the largest statement) that the Lean runtime runs as tasks on all its threads, so a
-module uses every thread it gets; the longest one, `KK0_01Native`, needs about 180 CPU-hours.
+* `sh build_parts.sh N K I` on machine `I` (`I` from 0 to `K - 1`) builds every `K`-th module from the `I`-th on.
+  `K` machines with `I = 0, ..., K - 1` build all of them.
+* `sh build_parts.sh N -f LIST` builds the modules named in the file `LIST`, one per line, as `Cert.F0.M12`.
+  `find Cert -name 'M*.lean' | sort` lists all of them.
 
-`lake build` starts one Lean process per thread and gives each process as many threads. The environment
-variable `LEAN_NUM_THREADS` sets both numbers, for example `LEAN_NUM_THREADS=32 lake build AlmanacSolution`.
-A build that is stopped can be started again: Lake keeps the modules that are done.
+To put the results together, copy the directories `.lake/build/lib/lean/Cert/` and `.lake/build/ir/Cert/` of
+every machine into one checkout, and run `lake build AlmanacSolution` there. The files of different machines
+overlap only in the modules that every machine builds first, and those are the same. Lake takes the modules
+that are already built and builds only the rest. All machines need the same commit, the same Lean and the same
+Mathlib. I tried this on one machine only: I deleted the build files of F5 and copied them back, and I copied
+them into a copy of the project at another path. Both times Lake took the copied modules and built none of them
+again.
+
+Besides the table above, I measured these:
+
+| step | result |
+|---|---|
+| F5 and the profile FF0 built in full (lemmas, `Comb`, F5's rule records and `capF5`) | F5: 3 minutes for its module, 10 s for `capF5`; FF0: 6 modules of 8 s to 4 minutes |
+| everything else, with the 595,177 evaluated lemmas replaced by assumptions (a test copy) | all of it compiles up to `AlmanacSolution`; `lower_seven` then depends on exactly those 595,177 assumptions and the three axioms |
+| 50 modules of 10 lemmas of F0 (4,225,802 visits), 5 at a time beside other jobs | 40 minutes on 5 CPUs, at most 2.5 GB each |
+| `lake env leanchecker --fresh` on one module of 10 lemmas of F0 | 266 s, 3.7 GB |
 
 ## Sources and licences
 

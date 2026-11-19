@@ -1,4 +1,4 @@
-Superpermutation bounds in Lean: a lower bound for 7 symbols (a Superpermutation Almanac batch)
+Superpermutation bounds in Lean: a lower bound for 7 symbols, checked by the kernel (a Superpermutation Almanac batch)
 
 This project contains Lean sources from four repositories and new files.
 
@@ -7,11 +7,7 @@ https://github.com/jhalfar/superpermutations, commit 64ab6a783731744882bc1886124
 Apache License 2.0, reproduced in licenses/jhalfar-superpermutations-LICENSE.
 Included: the modules of LowerBounds/ (from the directories proofs/lean/lower, proofs/lean/n7,
 proofs/lean/n7_5900 and proofs/lean/n7_5901) and of Superperm/ (from proofs/lean/words).
-Changed files say at their top what was changed: LowerBounds/SSearch.lean (a local macro written as a local
-notation with the same expansion), the trust comments of LowerBounds/PRingNative.lean, PProfNative.lean and of
-the 72 evaluation modules of proofs/lean/n7_5900 (LowerBounds/KK*Native.lean, KSmallNative.lean,
-J15S*Native.lean; comments only), and LowerBounds/KFinalNative.lean (one import and three theorems removed, see
-its header).
+Changed: LowerBounds/SSearch.lean (a local macro written as a local notation with the same expansion).
 
 Zach Hunter and Uku Raudvere, superpermutations-hunter
 https://github.com/urdvr/superpermutations-hunter, commit d45222190031d162feb1f6f3cf5fe2d11fab726d
@@ -44,8 +40,7 @@ Included: Challenge.lean, unchanged.
 SOURCES.tsv lists every included file with its origin, its path in the original repository and the SHA-256 of
 the original it was copied from.
 
-New files, under the Apache License 2.0 of jhalfar/superpermutations: LowerBounds/PFinalK16.lean,
-PK16F0Native.lean, PK16F1Native.lean, PK16Native.lean and PFinalK16Native.lean (from my batch for 5,899),
-LowerBounds/KFinalK16.lean, F5900K16.lean and F5900K16Native.lean, AlmanacSolution.lean, LowerLinks.lean,
-README.md and this NOTICE. AlmanacDefs.lean, AlmanacStatement.lean and AlmanacChallenge.lean are the Almanac's
-files (superpermutations.com), unchanged.
+New files, under the Apache License 2.0 of jhalfar/superpermutations: every file of Cert/ (the kernel
+engines, their proofs, the tables and their checks, and the generated modules of the evaluated lemmas),
+AlmanacSolution.lean, LowerLinks.lean, build_parts.sh, README.md and this NOTICE. AlmanacDefs.lean,
+AlmanacStatement.lean and AlmanacChallenge.lean are the Almanac's files (superpermutations.com), unchanged.
