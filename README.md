@@ -33,7 +33,7 @@ new directory [`Cert/`](Cert/) holds what it evaluates instead:
 | engines | the searches of `K16Search.lean` (F0 to F5) and `PSearch.lean` (FR, FF) written for the kernel: the marks are one number, the successors of a word and the blocks of their rows come from one record per word, every loop is `Nat.rec`, and the potentials are natural numbers shifted by $`2^{18}`$; a search can skip the prefixes of a list | `KEngine`, `KEngineN`, `OkN`, `PEngine`, `ChildN` |
 | soundness | if the kernel search does not find, the statement of the written proof holds: `kstmt16_of_searchC` (F0 to F5, through `KStmt16` of `K16Sound.lean`) and `pstmt_of_psearchC` (FR, FF, `PS.PStmt`); the engine with natural potentials is the same search (`goNat_eq`); and a search cut at a list of prefixes, with every prefix of the list searched on its own, is the whole search (`goC_cut`, `pgoC_cut`) | `KComplete`, `KEquiv`, `Cut`, `PComplete`, `PStmtC`, `PCut`, `Assemble`, `AssembleN` |
 | tables | the word records and the rule records as numbers; the kernel checks that they are what the definitions of `PSearch.lean` and `KSearch.lean` give (every word, every rule record of each search, the ring tables, the caps) | `W`, `WO`, `R_F0` .. `R_F5`, `RingT`, `Cap0`, `WDefs`, `RDefs`, `WC/`, `WOC/`, `RC/`, `RingC/`, `WSpec`, `RSpec`, `RingSpec`, `Cap`, `WCheck` |
-| evaluated lemmas | each search cut into 595,177 lemmas of at most 20,000 visited prefixes (26,000 for one profile): a lemma for a subtree (`g...`), a lemma for a part of the tree above together with the list of the subtrees below it (`x...`), and the top (`top`); a prefix is named by its path from the prefix above it | `F0/` .. `F5/`, `FR/`, `FF0/` .. `FF4/`: `S*` the names, `M*` the lemmas (50 per module), `Comb` puts them together (for F0, FR and F1 a chain `Comb_P1`, `Comb_P2`, ..., `Comb`, so that no file is over the site's 4 MB limit; `W.lean` likewise imports `W_P1.lean`) |
+| evaluated lemmas | each search cut into 595,177 lemmas of at most 20,000 visited prefixes (26,000 for one profile): a lemma for a subtree (`g...`), a lemma for a part of the tree above together with the list of the subtrees below it (`x...`), and the top (`top`); a prefix is named by its path from the prefix above it | `F0/` .. `F5/`, `FR/`, `FF0/` .. `FF4/`: `S*` the names, `M*` the lemmas (50 per module), `Comb` puts them together. The site allows at most 10,000 lines and 4 MB per Lean file, so a longer `S*` or `Comb` file is a chain `X_P1`, `X_P2`, ..., `X` (each part imports the one before, and `X` keeps its name); `W.lean` likewise imports `W_P1.lean` |
 | assembly | the six caps, the ring cap and the five profiles, and the theorem `covers_lower_bound_7_kernel` | `F0Final` .. `F5Final`, `FRFinal`, `FFFinal`, `Final5899` |
 
 C copies of the searches chose the cutting: they count the visited prefixes below every prefix. Nothing about
@@ -68,7 +68,7 @@ depending on the search and on its largest lemma.
 
 The rest is small. The table checks take about two CPU-hours. The modules after the evaluated ones (the `Comb`
 modules, the assembly and `AlmanacSolution`) take about 35 minutes together. The largest part is the chain of
-`Cert.F0.Comb`: seven files of 1.5 to 3 minutes each. This batch is meant to be built by hand.
+`Cert.F0.Comb`: 32 files of 13 to 28 seconds each. This batch is meant to be built by hand.
 
 ## Build
 
