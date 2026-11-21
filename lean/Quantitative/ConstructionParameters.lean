@@ -7,6 +7,10 @@ import Mathlib.Tactic.Positivity
 /-!
 # The explicit parameters of the source construction
 
+Changed for the exponent-29 batch (J. Halfar, November 2026): the packing
+degree `sourceDegree` is `192 r^7` (`Asym29.degree_192`) in place of
+`64 r^8`, with the two proofs that unfold it. The stated bounds are unchanged.
+
 The factorial quotient, rational density, natural ceiling, width, and
 normalized density are defined here. Their polynomial bounds are proved
 from the definitions. No source-family existence hypothesis occurs in
@@ -15,7 +19,7 @@ these arithmetic statements.
 
 namespace CoefficientTwoPrecision
 
-def sourceDegree (r : ℕ) : ℕ := 64 * r ^ 8
+def sourceDegree (r : ℕ) : ℕ := 192 * r ^ 7
 
 def sourceEta (r : ℕ) : ℚ :=
   (r.factorial : ℚ) /
@@ -32,12 +36,12 @@ def sourceRho (r : ℕ) : ℚ := (sourceA r : ℚ) * sourceBeta r / (r : ℚ)
 def sourceGridCount (r : ℕ) : ℕ := r * sourceA r ^ 2
 
 def betaPolynomial (x : ℚ) : ℚ :=
-  x * (x - 1) * (x - 2) ^ 2 / (2 * (64 * x ^ 8 + 1))
+  x * (x - 1) * (x - 2) ^ 2 / (2 * (192 * x ^ 7 + 1))
 
 theorem sourceEta_closed_form (r : ℕ) (hr : 3 ≤ r) :
     sourceEta r =
       (r : ℚ) * ((r : ℚ) - 1) * ((r : ℚ) - 2) /
-        (2 * (64 * (r : ℚ) ^ 8 + 1)) := by
+        (2 * (192 * (r : ℚ) ^ 7 + 1)) := by
   have hfac : (r.factorial : ℚ) =
       (r : ℚ) * ((r : ℚ) - 1) * ((r : ℚ) - 2) * ((r - 3).factorial : ℚ) := by
     obtain ⟨s, hs⟩ : ∃ s : ℕ, r = s + 3 := ⟨r - 3, by omega⟩
@@ -47,7 +51,7 @@ theorem sourceEta_closed_form (r : ℕ) (hr : 3 ≤ r) :
     ring
   have hfac0 : ((r - 3).factorial : ℚ) ≠ 0 := by
     exact_mod_cast Nat.factorial_ne_zero (r - 3)
-  have hden : (64 : ℚ) * (r : ℚ) ^ 8 + 1 ≠ 0 := by positivity
+  have hden : (192 : ℚ) * (r : ℚ) ^ 7 + 1 ≠ 0 := by positivity
   unfold sourceEta sourceDegree
   push_cast
   rw [hfac]
@@ -70,7 +74,7 @@ theorem betaPolynomial_bounds (x : ℚ) (hx : 6 ≤ x) :
   have hxsub1 : 0 < x - 1 := by linarith
   have hxsub2 : 0 < x - 2 := by linarith
   let N : ℚ := x * (x - 1) * (x - 2) ^ 2
-  let D : ℚ := 2 * (64 * x ^ 8 + 1)
+  let D : ℚ := 2 * (192 * x ^ 7 + 1)
   have hNpos : 0 < N := mul_pos (mul_pos hx0 hxsub1) (pow_pos hxsub2 2)
   have hDpos : 0 < D := by dsimp [D]; positivity
   have h1 : (5 / 6 : ℚ) * x ≤ x - 1 := by linarith
@@ -95,10 +99,14 @@ theorem betaPolynomial_bounds (x : ℚ) (hx : 6 ≤ x) :
       N = x * ((x - 1) * (x - 2) ^ 2) := by dsimp [N]; ring
       _ ≤ x * (x * x ^ 2) := hprodUpper
       _ = x ^ 4 := by ring
-  have h8 : (1 : ℚ) ≤ x ^ 8 := one_le_pow₀ hx1
-  have h48 : x ^ 4 ≤ x ^ 8 := pow_le_pow_right₀ hx1 (by decide : 4 ≤ 8)
-  have hDupper : D ≤ 130 * x ^ 8 := by dsimp [D]; linarith only [h8]
-  have hNltD : N < D := hNupper.trans_lt (h48.trans_lt (by dsimp [D]; linarith only [h8]))
+  have h7 : (1 : ℚ) ≤ x ^ 7 := one_le_pow₀ hx1
+  have h47 : x ^ 4 ≤ x ^ 7 := pow_le_pow_right₀ hx1 (by decide : 4 ≤ 7)
+  have h78 : 6 * x ^ 7 ≤ x ^ 8 := by
+    have h : x ^ 8 = x * x ^ 7 := by ring
+    rw [h]
+    exact mul_le_mul_of_nonneg_right hx (by positivity)
+  have hDupper : D ≤ 130 * x ^ 8 := by dsimp [D]; linarith only [h7, h78]
+  have hNltD : N < D := hNupper.trans_lt (h47.trans_lt (by dsimp [D]; linarith only [h7]))
   change 0 < N / D ∧ N / D < 1 ∧ 1 / (351 * x ^ 4) ≤ N / D
   refine ⟨div_pos hNpos hDpos, ?_, ?_⟩
   · apply (div_lt_iff₀ hDpos).2

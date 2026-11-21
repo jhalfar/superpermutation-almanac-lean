@@ -1,8 +1,8 @@
-import Asym37.Params
+import Quantitative.CandidatePositivity
 import Quantitative.SourceSelection
 
 /-!
-# Exponent 35: the smaller block count and the width-dependent definitions
+# The smaller block count and the width-dependent definitions
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66).
 His source family has `A = ⌈r^3/β⌉` blocks per letter, so that the
@@ -11,8 +11,10 @@ pending mass after the sparse blocks at most `4/r`
 (`ScheduleArithmetic.sparse_densitySum_ge`). With the blockwise estimate of
 `Asym35.Pending` the density `ρ ≥ 4 r (log₂ r + 2)` already gives a
 pending mass of at most `1/r`. So here
-`A = ⌈4 r^2 (log₂ r + 2)/β⌉`, the width is `W = r^2 A ≤ 1405 r^8 (log₂ r + 2)`
-instead of `352 r^9`, and `ρ ≥ 4 r (log₂ r + 2)`.
+`A = ⌈4 r^2 (log₂ r + 2)/β⌉` and `ρ ≥ 4 r (log₂ r + 2)`. With the packing
+degree `192 r^7` of `Asym29.Degree` the density is `β ≥ 1/(1040 r^3)`, so the
+width is `W = r^2 A ≤ 4161 r^7 (log₂ r + 2)` (with the degree `64 r^8` it was
+`1405 r^8 (log₂ r + 2)`, and `352 r^9` with Jay's `A`).
 
 The rest of this file repeats, for the new `A`, the definitions and lemmas
 of Jay's `CandidateFactorization`, `ConstructionSize`, `CandidateSpace`,
@@ -23,6 +25,56 @@ the geometry they rely on (`GuardCatalogue`, `CandidateSpace.candidates`,
 -/
 
 namespace CoefficientTwoPrecision.Asym35
+
+/-! ## The density for the packing degree `192 r^7` -/
+
+theorem betaPolynomial_upper7 (x : ℚ) (hx : 6 ≤ x) :
+    betaPolynomial x ≤ 1 / (384 * x ^ 3) := by
+  have hx0 : 0 < x := by linarith
+  have hxsub1 : 0 < x - 1 := by linarith
+  have hxsub2 : 0 < x - 2 := by linarith
+  have h2upper : (x - 2) ^ 2 ≤ x ^ 2 :=
+    pow_le_pow_left₀ (le_of_lt hxsub2) (by linarith) 2
+  have hprodUpper := mul_le_mul_of_nonneg_left
+    (mul_le_mul (show x - 1 ≤ x by linarith) h2upper (sq_nonneg _) (le_of_lt hx0))
+    (le_of_lt hx0)
+  have hNupper : x * (x - 1) * (x - 2) ^ 2 ≤ x ^ 4 := by
+    calc
+      x * (x - 1) * (x - 2) ^ 2 = x * ((x - 1) * (x - 2) ^ 2) := by ring
+      _ ≤ x * (x * x ^ 2) := hprodUpper
+      _ = x ^ 4 := by ring
+  unfold betaPolynomial
+  rw [div_le_div_iff₀ (by positivity) (by positivity)]
+  have h := mul_le_mul_of_nonneg_right hNupper (show (0 : ℚ) ≤ 384 * x ^ 3 by positivity)
+  have e : x ^ 4 * (384 * x ^ 3) = 384 * x ^ 7 := by ring
+  rw [e] at h
+  linarith
+
+theorem betaPolynomial_lower7 (x : ℚ) (hx : 6 ≤ x) :
+    1 / (1040 * x ^ 3) ≤ betaPolynomial x := by
+  have hx0 : 0 < x := by linarith
+  have hx1 : (1 : ℚ) ≤ x := by linarith
+  have hxsub1 : 0 < x - 1 := by linarith
+  have hxsub2 : 0 < x - 2 := by linarith
+  have h1 : (5 / 6 : ℚ) * x ≤ x - 1 := by linarith
+  have h2 : (2 / 3 : ℚ) * x ≤ x - 2 := by linarith
+  have h2sq : ((2 / 3 : ℚ) * x) ^ 2 ≤ (x - 2) ^ 2 :=
+    pow_le_pow_left₀ (by positivity) h2 2
+  have hprodLower := mul_le_mul_of_nonneg_left
+    (mul_le_mul h1 h2sq (sq_nonneg _) (le_of_lt hxsub1)) (le_of_lt hx0)
+  have hNlower : (10 / 27 : ℚ) * x ^ 4 ≤ x * (x - 1) * (x - 2) ^ 2 := by
+    calc
+      (10 / 27 : ℚ) * x ^ 4 =
+          x * (((5 / 6 : ℚ) * x) * (((2 / 3 : ℚ) * x) ^ 2)) := by ring
+      _ ≤ x * ((x - 1) * (x - 2) ^ 2) := hprodLower
+      _ = x * (x - 1) * (x - 2) ^ 2 := by ring
+  have h7 : x ≤ x ^ 7 := le_self_pow₀ hx1 (by decide)
+  unfold betaPolynomial
+  rw [div_le_div_iff₀ (by positivity) (by positivity)]
+  have h := mul_le_mul_of_nonneg_right hNlower (show (0 : ℚ) ≤ 1040 * x ^ 3 by positivity)
+  have e : (10 / 27 : ℚ) * x ^ 4 * (1040 * x ^ 3) = (10400 / 27) * x ^ 7 := by ring
+  rw [e] at h
+  linarith
 
 /-! ## The new block count -/
 
@@ -77,20 +129,20 @@ theorem sourceA35_ceil (r : ℕ) (hr : 6 ≤ r) :
   have hbeta := (sourceBeta_bounds r hr).1
   exact (div_le_iff₀ hbeta).1 (Nat.le_ceil _)
 
-theorem sourceA35_lower (r : ℕ) (hr : 6 ≤ r) : 512 * r ^ 6 * logFactor r ≤ sourceA35 r := by
+theorem sourceA35_lower (r : ℕ) (hr : 6 ≤ r) : 1536 * r ^ 5 * logFactor r ≤ sourceA35 r := by
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hr0 : (0 : ℚ) < r := by linarith
   have hL : (0 : ℚ) ≤ logFactor r := Nat.cast_nonneg _
   have hbeta := (sourceBeta_bounds r hr).1
-  have hupper : sourceBeta r ≤ 1 / (128 * (r : ℚ) ^ 4) := by
+  have hupper : sourceBeta r ≤ 1 / (384 * (r : ℚ) ^ 3) := by
     rw [sourceBeta_closed_form r (by omega)]
-    exact Asym37.betaPolynomial_upper (r : ℚ) hrQ
-  have hquot : 512 * (r : ℚ) ^ 6 * logFactor r ≤
+    exact betaPolynomial_upper7 (r : ℚ) hrQ
+  have hquot : 1536 * (r : ℚ) ^ 5 * logFactor r ≤
       4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r := by
     rw [le_div_iff₀ hbeta]
     calc
-      512 * (r : ℚ) ^ 6 * logFactor r * sourceBeta r ≤
-          512 * (r : ℚ) ^ 6 * logFactor r * (1 / (128 * (r : ℚ) ^ 4)) :=
+      1536 * (r : ℚ) ^ 5 * logFactor r * sourceBeta r ≤
+          1536 * (r : ℚ) ^ 5 * logFactor r * (1 / (384 * (r : ℚ) ^ 3)) :=
         mul_le_mul_of_nonneg_left hupper (by positivity)
       _ = 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) := by field_simp; ring
   have hceil : 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r ≤ (sourceA35 r : ℚ) :=
@@ -98,11 +150,11 @@ theorem sourceA35_lower (r : ℕ) (hr : 6 ≤ r) : 512 * r ^ 6 * logFactor r ≤
   have h := hquot.trans hceil
   exact_mod_cast h
 
-theorem sourceWidth35_lower8 (r : ℕ) (hr : 6 ≤ r) :
-    512 * r ^ 8 * logFactor r ≤ sourceWidth35 r := by
+theorem sourceWidth35_lower7 (r : ℕ) (hr : 6 ≤ r) :
+    1536 * r ^ 7 * logFactor r ≤ sourceWidth35 r := by
   have h := Nat.mul_le_mul_left (r ^ 2) (sourceA35_lower r hr)
   calc
-    512 * r ^ 8 * logFactor r = r ^ 2 * (512 * r ^ 6 * logFactor r) := by ring
+    1536 * r ^ 7 * logFactor r = r ^ 2 * (1536 * r ^ 5 * logFactor r) := by ring
     _ ≤ r ^ 2 * sourceA35 r := h
     _ = sourceWidth35 r := rfl
 
@@ -116,36 +168,39 @@ theorem sourceWidth35_dvd (r : ℕ) : r ∣ sourceWidth35 r := by
   ring
 
 theorem sourceWidth35_upper (r : ℕ) (hr : 6 ≤ r) :
-    sourceWidth35 r ≤ 1405 * r ^ 8 * logFactor r := by
+    sourceWidth35 r ≤ 4161 * r ^ 7 * logFactor r := by
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hr0 : (0 : ℚ) < r := by linarith
   have hL1 : (1 : ℚ) ≤ logFactor r := by
     exact_mod_cast (show 1 ≤ logFactor r by have := logFactor_pos r; omega)
   have hL0 : (0 : ℚ) ≤ logFactor r := by linarith
-  obtain ⟨hbeta, _, hbetalower⟩ := sourceBeta_bounds r hr
+  obtain ⟨hbeta, _, _⟩ := sourceBeta_bounds r hr
+  have hbetalower : 1 / (1040 * (r : ℚ) ^ 3) ≤ sourceBeta r := by
+    rw [sourceBeta_closed_form r (by omega)]
+    exact betaPolynomial_lower7 (r : ℚ) hrQ
   have hquot : 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r ≤
-      1404 * (r : ℚ) ^ 6 * logFactor r := by
+      4160 * (r : ℚ) ^ 5 * logFactor r := by
     calc
       4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r ≤
-          4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / (1 / (351 * (r : ℚ) ^ 4)) :=
+          4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / (1 / (1040 * (r : ℚ) ^ 3)) :=
         div_le_div_of_nonneg_left (by positivity) (by positivity) hbetalower
-      _ = 1404 * (r : ℚ) ^ 6 * logFactor r := by field_simp; ring
+      _ = 4160 * (r : ℚ) ^ 5 * logFactor r := by field_simp; ring
   have hceil : (sourceA35 r : ℚ) < 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r + 1 :=
     Nat.ceil_lt_add_one (le_of_lt (div_pos (by positivity) hbeta))
-  have hA : (sourceA35 r : ℚ) < 1404 * (r : ℚ) ^ 6 * logFactor r + 1 := by linarith
-  have hwidth : (sourceWidth35 r : ℚ) < 1404 * (r : ℚ) ^ 8 * logFactor r + (r : ℚ) ^ 2 := by
+  have hA : (sourceA35 r : ℚ) < 4160 * (r : ℚ) ^ 5 * logFactor r + 1 := by linarith
+  have hwidth : (sourceWidth35 r : ℚ) < 4160 * (r : ℚ) ^ 7 * logFactor r + (r : ℚ) ^ 2 := by
     calc
       (sourceWidth35 r : ℚ) = (r : ℚ) ^ 2 * (sourceA35 r : ℚ) := by
         simp only [sourceWidth35, Nat.cast_mul, Nat.cast_pow]
-      _ < (r : ℚ) ^ 2 * (1404 * (r : ℚ) ^ 6 * logFactor r + 1) :=
+      _ < (r : ℚ) ^ 2 * (4160 * (r : ℚ) ^ 5 * logFactor r + 1) :=
         mul_lt_mul_of_pos_left hA (pow_pos hr0 2)
-      _ = 1404 * (r : ℚ) ^ 8 * logFactor r + (r : ℚ) ^ 2 := by ring
-  have h28 : (r : ℚ) ^ 2 ≤ (r : ℚ) ^ 8 :=
-    pow_le_pow_right₀ (by linarith : (1 : ℚ) ≤ r) (by decide : 2 ≤ 8)
-  have h28L : (r : ℚ) ^ 2 ≤ (r : ℚ) ^ 8 * logFactor r := by
-    have := mul_le_mul_of_nonneg_left hL1 (pow_nonneg hr0.le 8)
+      _ = 4160 * (r : ℚ) ^ 7 * logFactor r + (r : ℚ) ^ 2 := by ring
+  have h28 : (r : ℚ) ^ 2 ≤ (r : ℚ) ^ 7 :=
+    pow_le_pow_right₀ (by linarith : (1 : ℚ) ≤ r) (by decide : 2 ≤ 7)
+  have h28L : (r : ℚ) ^ 2 ≤ (r : ℚ) ^ 7 * logFactor r := by
+    have := mul_le_mul_of_nonneg_left hL1 (pow_nonneg hr0.le 7)
     linarith
-  have hwidthQ : (sourceWidth35 r : ℚ) ≤ 1405 * (r : ℚ) ^ 8 * logFactor r := by
+  have hwidthQ : (sourceWidth35 r : ℚ) ≤ 4161 * (r : ℚ) ^ 7 * logFactor r := by
     linarith only [hwidth, h28L]
   exact_mod_cast hwidthQ
 
@@ -324,7 +379,7 @@ end CoefficientTwoPrecision.Asym35
 
 #print axioms CoefficientTwoPrecision.Asym35.logFactor_cube_le
 #print axioms CoefficientTwoPrecision.Asym35.sourceWidth35_upper
-#print axioms CoefficientTwoPrecision.Asym35.sourceWidth35_lower8
+#print axioms CoefficientTwoPrecision.Asym35.sourceWidth35_lower7
 #print axioms CoefficientTwoPrecision.Asym35.sourceRho35_lower
 #print axioms CoefficientTwoPrecision.Asym35.actual_leading_rows35
 #print axioms CoefficientTwoPrecision.Asym35.prescribed_card35

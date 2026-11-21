@@ -7,6 +7,9 @@ import Quantitative.GuardRelativeLoss
 The guard-variable and guard-free cases are alternatives. A common bound
 for their maximum retains the prescribed coefficient 7118280 after the
 finite catalogue is summed. The selected size is its actual floor count.
+
+Changed for the exponent-29 batch (J. Halfar, November 2026): the proof of
+`sourceDegree + 1 ≤ 65 r^8` in `coefficient_bound`, for `sourceDegree = 192 r^7`.
 -/
 
 namespace CoefficientTwoPrecision.ProximityNormalization
@@ -41,6 +44,11 @@ theorem coefficient_bound (d : Nat) :
       _ = (d + 3) ^ 5 := by ring
   have hpow : 1 ≤ (d + 3) ^ 8 := one_le_pow₀ (by omega)
   have hdegree : sourceDegree (d + 3) + 1 ≤ 65 * (d + 3) ^ 8 := by
+    have h7 : 1 ≤ (d + 3) ^ 7 := one_le_pow₀ (by omega)
+    have h78 : 3 * (d + 3) ^ 7 ≤ (d + 3) ^ 8 := by
+      have h : (d + 3) ^ 8 = (d + 3) * (d + 3) ^ 7 := by ring
+      rw [h]
+      exact Nat.mul_le_mul_right _ (by omega)
     unfold sourceDegree
     omega
   calc

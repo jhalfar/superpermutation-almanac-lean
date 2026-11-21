@@ -1,8 +1,8 @@
-import Asym35.Params
+import Asym29.Params
 import Quantitative.ActualCountEstimates
 
 /-!
-# Exponent 35: the ratio form of the count estimates
+# Exponent 29: the ratio form of the count estimates
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66).
 `ActualCountEstimates.estimates` writes the row density and the cost rate
@@ -14,7 +14,9 @@ In the ratio all these factors cancel except one background factor
 remain. Here the retention may be as small as `7/8`.
 -/
 
-namespace CoefficientTwoPrecision.Asym35
+namespace CoefficientTwoPrecision.Asym29
+
+open CoefficientTwoPrecision.Asym35
 
 open SuperpermutationUpperBound SourceFamilyAdapter SourceAdvancement
 open CandidateFactorization ContourAggregation
@@ -83,12 +85,12 @@ theorem ratio_from_factors (r c rw m P bg u v : ℚ) (hr : 6 ≤ r) (hm : 0 < m)
     c * (rw / m) * P * (1 + v) ≤ c * (rw / m) * P * (ratioAllowance r * (bg * (1 + u))) := hmid
     _ = _ := by ring
 
-theorem estimates35 {alphabet : List Nat} {h : Nat}
+theorem estimates29 {alphabet : List Nat} {h : Nat}
     (F : List (SourceContour alphabet h)) (r m K : Nat) (hr : 6 ≤ r)
-    (hm : threshold35 r ≤ m)
+    (hm : threshold29 r ≤ m)
     (hK : K ≤ 52 * r ^ 4 * sourceWidth35 r ^ 2)
     (hretention : |(F.length : ℚ) / candidateCount35 r m - 1| ≤
-      deletionNumerator35 r (sourceWidth35 r) / m)
+      deletionNumerator29 r (sourceWidth35 r) / m)
     (hperturb : ∀ C ∈ F,
       |(C.rows.length : ℚ) - (((r : ℚ) - 2) * (backgroundSize35 r m : ℚ) ^ 2 +
         ((r : ℚ) * ((r : ℚ) - 1) + 1) * backgroundSize35 r m)| ≤
@@ -104,19 +106,19 @@ theorem estimates35 {alphabet : List Nat} {h : Nat}
           (((sourceRows F).length : ℚ) / (SourceUniverse.risingCount m (sourceWidth35 r) : ℚ)) ∧
       ((circles F).length : ℚ) ≤ ((r : ℚ) - 1) *
         (((sourceRows F).map Row.charge).sum : ℚ) / m := by
-  have hm0 := (threshold_conditions35 r m hr hm).1
+  have hm0 := (threshold_conditions29 r m hr hm).1
   have hmM : m ≤ backgroundSize35 r m := by unfold backgroundSize35; omega
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hmQ : (0 : ℚ) < m := by exact_mod_cast hm0
   have hcount0 : (candidateCount35 r m : ℚ) ≠ 0 := by
-    exact_mod_cast Nat.ne_of_gt (candidate_positive35 r m hr hm)
+    exact_mod_cast Nat.ne_of_gt (candidate_positive29 r m hr hm)
   -- small errors
-  obtain ⟨hs1, hs2, hs3, hs4, hs5⟩ := small_errors35 r m hr hm
+  obtain ⟨hs1, hs2, hs3, hs4, hs5⟩ := small_errors29 r m hr hm
   set W := sourceWidth35 r with hWdef
   have hW1 : (1 : ℚ) ≤ W := by exact_mod_cast width_positive35 r hr
   have hs1Q : 100 * (W : ℚ) ^ 2 ≤ m := by exact_mod_cast hs1
-  have hs2Q : 8 * deletionNumerator35 r W ≤ m := by
-    unfold deletionNumerator35
+  have hs2Q : 8 * deletionNumerator29 r W ≤ m := by
+    unfold deletionNumerator29
     exact_mod_cast hs2
   have hs3Q : 100 * (2 * (r : ℚ) + 1040 * (r : ℚ) ^ 5 * (W : ℚ) ^ 2) ≤ m := by
     exact_mod_cast hs3
@@ -138,13 +140,13 @@ theorem estimates35 {alphabet : List Nat} {h : Nat}
     rw [uniform_charge F r (backgroundSize35 r m) hcharge]
     simp only [Nat.cast_mul, Nat.cast_sub (show 1 ≤ r by omega), Nat.cast_one, Nat.cast_ofNat]
   -- the factors
-  have hgf := guard_error35 r m hr hm
-  have hff := floor_error35 r m hr hm
-  have hins := insertion_error35 r m hr hm
-  have hins0 := insertion_pos35 r m hr hm
-  have hbg1 := background_ge_one35 r m hr hm 1
+  have hgf := guard_error29 r m hr hm
+  have hff := floor_error29 r m hr hm
+  have hins := insertion_error29 r m hr hm
+  have hins0 := insertion_pos29 r m hr hm
+  have hbg1 := background_ge_one29 r m hr hm 1
   rw [pow_one] at hbg1
-  have hbgE := background_ge_one35 r m hr hm (r - 3 + 1)
+  have hbgE := background_ge_one29 r m hr hm (r - 3 + 1)
   have hW2m : (W : ℚ) ^ 2 / m ≤ 1 / 100 := by
     rw [div_le_iff₀ hmQ]; linarith
   have hWm : (W : ℚ) / m ≤ 1 / 100 := by
@@ -161,7 +163,7 @@ theorem estimates35 {alphabet : List Nat} {h : Nat}
     have := (abs_le.mp hins).2
     linarith
   have ht1 : 7 / 8 ≤ t := by
-    have h1 : deletionNumerator35 r W / m ≤ 1 / 8 := by
+    have h1 : deletionNumerator29 r W / m ≤ 1 / 8 := by
       rw [div_le_iff₀ hmQ]; linarith
     have := (abs_le.mp hretention).1
     rw [htdef]
@@ -233,11 +235,11 @@ theorem estimates35 {alphabet : List Nat} {h : Nat}
   refine ⟨?_, ?_, hconnect⟩
   · rw [hrowsEq]
     exact density_from_factors _ _ _ _ _ _ _ _ hmQ hrho hgf1 hff1 ht1
-      (background_ge_one35 r m hr hm (r - 3 + 2)) hu1 hins0 hins1
+      (background_ge_one29 r m hr hm (r - 3 + 2)) hu1 hins0 hins1
   · rw [hcostEq, hrowsP]
     exact ratio_from_factors (r : ℚ) (costCoefficient r) (sourceRho35 r * W) m P
       (backgroundFactor35 r m) u v hrQ hmQ hc hrho hP0 hbg1 hu4 hv4
 
-end CoefficientTwoPrecision.Asym35
+end CoefficientTwoPrecision.Asym29
 
-#print axioms CoefficientTwoPrecision.Asym35.estimates35
+#print axioms CoefficientTwoPrecision.Asym29.estimates29

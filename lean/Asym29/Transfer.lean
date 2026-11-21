@@ -1,30 +1,32 @@
-import Asym35.CountRatio
+import Asym29.CountRatio
 import Asym35.Pending
 import Quantitative.SparseStageIteration
 
 /-!
-# Exponent 35: the ratio-based sparse interface and the numerical transfer
+# Exponent 29: the ratio-based sparse interface and the numerical transfer
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66).
 `SparseStageIteration.SparseBlockCertificate` asks for exact formulas with
 two relative errors `|theta|, |epsilon| ≤ E/m`. The transfer
 (`ScheduledTransfer.scheduled_sparse_estimates`) only uses the local cost
 ratio `n g ≤ (2 + 9/r) f` and the density lower bound `f ≥ ρW/(2n)`.
-`SparseBlockCertificate35` asks for exactly these two facts (at the block
+`SparseBlockCertificate29` asks for exactly these two facts (at the block
 size `m`), plus the unchanged circle ratio. The numerical assembly is
 `NumericalAssembly.scheduled_numerical_bound` with this interface and the
-threshold `n ≥ logThreshold r = 5920 · 1405^3 · r^34 · (log₂ r + 2)^3`. The pending mass after the sparse
+threshold `n ≥ logThreshold r = 5920 · 4161^3 · r^29 · (log₂ r + 2)^3`. The pending mass after the sparse
 blocks is bounded by `Pending.sparse_pending_le_inv` (at most `1/r`, from
 `ρ ≥ 4 r (log₂ r + 2)`), so the coefficient is `2 + 26/r`.
 -/
 
-namespace CoefficientTwoPrecision.Asym35
+namespace CoefficientTwoPrecision.Asym29
+
+open CoefficientTwoPrecision.Asym35
 
 open SuperpermutationUpperBound SuperpermutationUpperBound43586371
 open StageState SourceUniverse
 
 /-- The geometric input at one scheduled source size, in ratio form. -/
-structure SparseBlockCertificate35 (r : ℕ) {m : ℕ} (S : BuiltStage m) where
+structure SparseBlockCertificate29 (r : ℕ) {m : ℕ} (S : BuiltStage m) where
   family : Block S (sourceWidth35 r)
   density_lower : sourceRho35 r * (sourceWidth35 r : ℚ) / (2 * (m : ℚ)) ≤
     (family.sourceRows : ℚ) / (risingCount m (sourceWidth35 r) : ℚ)
@@ -35,17 +37,17 @@ structure SparseBlockCertificate35 (r : ℕ) {m : ℕ} (S : BuiltStage m) where
   circle_ratio : (family.advancedCircles : ℚ) ≤
     ((r : ℚ) - 1) * (family.sourceCharge : ℚ) / (m : ℚ)
 
-/-- The source-family interface of the exponent-35 assembly. -/
-def SparseFamilySupplier35 (r : ℕ) : Prop :=
+/-- The source-family interface of the exponent-29 assembly. -/
+def SparseFamilySupplier29 (r : ℕ) : Prop :=
   ∀ (m : ℕ) (S : BuiltStage m), r ∣ m →
-    threshold35 r ≤ m → Nonempty (SparseBlockCertificate35 r S)
+    threshold29 r ≤ m → Nonempty (SparseBlockCertificate29 r S)
 
 /-! ## Size conditions for `n ≥ logThreshold r` -/
 
-theorem polynomial_threshold_conditions35 (r W L n : ℕ) (hr : 6 ≤ r)
-    (hWlower : r ^ 2 ≤ W) (hWupper : W ≤ 1405 * r ^ 8 * L)
-    (hn : 5920 * 1405 ^ 3 * r ^ 34 * L ^ 3 ≤ n) :
-    2 * (2960 * r ^ 10 * W ^ 3) ≤ n ∧
+theorem polynomial_threshold_conditions29 (r W L n : ℕ) (hr : 6 ≤ r)
+    (hWlower : r ^ 2 ≤ W) (hWupper : W ≤ 4161 * r ^ 7 * L)
+    (hn : 5920 * 4161 ^ 3 * r ^ 29 * L ^ 3 ≤ n) :
+    2 * (2960 * r ^ 8 * W ^ 3) ≤ n ∧
       96 * r ^ 2 ≤ n ∧
       2 * r * (r + W + (3 + 36 * binaryLength n)) ≤ n := by
   have hrpos : 1 ≤ r := by omega
@@ -53,70 +55,70 @@ theorem polynomial_threshold_conditions35 (r W L n : ℕ) (hr : 6 ≤ r)
   have hWpos : 1 ≤ W := hrpow.trans hWlower
   have hmul := Nat.mul_le_mul_left r hr
   have hroomW : r + 3 ≤ W := by nlinarith only [hr, hmul, hWlower]
-  have hW3 : W ^ 3 ≤ (1405 * r ^ 8 * L) ^ 3 := Nat.pow_le_pow_left hWupper 3
-  have hprimitive : 2 * (2960 * r ^ 10 * W ^ 3) ≤ n := by
+  have hW3 : W ^ 3 ≤ (4161 * r ^ 7 * L) ^ 3 := Nat.pow_le_pow_left hWupper 3
+  have hprimitive : 2 * (2960 * r ^ 8 * W ^ 3) ≤ n := by
     calc
-      2 * (2960 * r ^ 10 * W ^ 3) = 5920 * r ^ 10 * W ^ 3 := by ring
-      _ ≤ 5920 * r ^ 10 * (1405 * r ^ 8 * L) ^ 3 := Nat.mul_le_mul_left _ hW3
-      _ = 5920 * 1405 ^ 3 * r ^ 34 * L ^ 3 := by ring
+      2 * (2960 * r ^ 8 * W ^ 3) = 5920 * r ^ 8 * W ^ 3 := by ring
+      _ ≤ 5920 * r ^ 8 * (4161 * r ^ 7 * L) ^ 3 := Nat.mul_le_mul_left _ hW3
+      _ = 5920 * 4161 ^ 3 * r ^ 29 * L ^ 3 := by ring
       _ ≤ n := hn
-  have hE8 : 8 * r * (740 * r ^ 9 * W ^ 3) = 2 * (2960 * r ^ 10 * W ^ 3) := by ring
-  have hWE : W ≤ 740 * r ^ 9 * W ^ 3 := by
+  have hE8 : 8 * r * (740 * r ^ 7 * W ^ 3) = 2 * (2960 * r ^ 8 * W ^ 3) := by ring
+  have hWE : W ≤ 740 * r ^ 7 * W ^ 3 := by
     have h1 : W ≤ W ^ 3 := Nat.le_self_pow (by decide) W
-    have h2 : 1 ≤ 740 * r ^ 9 := by
-      have := Nat.one_le_pow 9 r (by omega)
+    have h2 : 1 ≤ 740 * r ^ 7 := by
+      have := Nat.one_le_pow 7 r (by omega)
       omega
     calc
       W ≤ W ^ 3 := h1
       _ = 1 * W ^ 3 := by ring
-      _ ≤ 740 * r ^ 9 * W ^ 3 := Nat.mul_le_mul_right _ h2
-  have hE : 2592 * r ≤ 740 * r ^ 9 * W ^ 3 := by
-    have h1 : r ≤ r ^ 9 := Nat.le_self_pow (by decide) r
+      _ ≤ 740 * r ^ 7 * W ^ 3 := Nat.mul_le_mul_right _ h2
+  have hE : 2592 * r ≤ 740 * r ^ 7 * W ^ 3 := by
+    have h1 : r ≤ r ^ 7 := Nat.le_self_pow (by decide) r
     have h3 : 1 ≤ W ^ 3 := Nat.one_le_pow 3 W (by omega)
-    have h4 : 6 ^ 8 ≤ r ^ 8 := Nat.pow_le_pow_left hr 8
-    have h5 : r ^ 9 = r * r ^ 8 := by ring
-    have h6 : 2592 * r ≤ 740 * r ^ 9 := by
+    have h4 : 6 ^ 6 ≤ r ^ 6 := Nat.pow_le_pow_left hr 6
+    have h5 : r ^ 7 = r * r ^ 6 := by ring
+    have h6 : 2592 * r ≤ 740 * r ^ 7 := by
       rw [h5]
       have := Nat.mul_le_mul_left r h4
       norm_num at this
       nlinarith
     calc
-      2592 * r ≤ 740 * r ^ 9 := h6
-      _ = 740 * r ^ 9 * 1 := by ring
-      _ ≤ 740 * r ^ 9 * W ^ 3 := Nat.mul_le_mul_left _ h3
+      2592 * r ≤ 740 * r ^ 7 := h6
+      _ = 740 * r ^ 7 * 1 := by ring
+      _ ≤ 740 * r ^ 7 * W ^ 3 := Nat.mul_le_mul_left _ h3
   exact ⟨hprimitive,
-    room_of_primitive_threshold r W (740 * r ^ 9 * W ^ 3) n hr hroomW hWE hE
+    room_of_primitive_threshold r W (740 * r ^ 7 * W ^ 3) n hr hroomW hWE hE
       (by rw [hE8]; exact hprimitive)⟩
 
-theorem construction_threshold_conditions35 (r n : ℕ) (hr : 6 ≤ r)
+theorem construction_threshold_conditions29 (r n : ℕ) (hr : 6 ≤ r)
     (hn : logThreshold r ≤ n) :
-    2 * threshold35 r ≤ n ∧
+    2 * threshold29 r ≤ n ∧
       96 * r ^ 2 ≤ n ∧
       2 * r * (r + sourceWidth35 r + (3 + 36 * binaryLength n)) ≤ n := by
-  exact polynomial_threshold_conditions35 r (sourceWidth35 r) (logFactor r) n hr
+  exact polynomial_threshold_conditions29 r (sourceWidth35 r) (logFactor r) n hr
     (sourceWidth35_lower r hr) (sourceWidth35_upper r hr) hn
 
 /-- The room needed by the blockwise pending bound: `n ≥ 2 r W (log₂ r + 2)^2`. -/
-theorem pending_room35 (r n : ℕ) (hr : 6 ≤ r) (hn : logThreshold r ≤ n) :
+theorem pending_room29 (r n : ℕ) (hr : 6 ≤ r) (hn : logThreshold r ≤ n) :
     2 * r * sourceWidth35 r * logFactor r ^ 2 ≤ n := by
-  have hprim := (construction_threshold_conditions35 r n hr hn).1
-  unfold threshold35 at hprim
+  have hprim := (construction_threshold_conditions29 r n hr hn).1
+  unfold threshold29 at hprim
   have hW : 1 ≤ sourceWidth35 r := width_positive35 r hr
   have hL3 := logFactor_cube_le r (by omega)
   have hL2 : logFactor r ^ 2 ≤ logFactor r ^ 3 :=
     Nat.pow_le_pow_right (by have := logFactor_pos r; omega) (by norm_num)
-  have h3 : r ^ 2 * sourceWidth35 r ≤ r ^ 10 * sourceWidth35 r ^ 3 :=
+  have h3 : r ^ 2 * sourceWidth35 r ≤ r ^ 8 * sourceWidth35 r ^ 3 :=
     Nat.mul_le_mul (Nat.pow_le_pow_right (by omega) (by norm_num)) (Nat.le_self_pow (by decide) _)
   calc
     2 * r * sourceWidth35 r * logFactor r ^ 2 ≤ 2 * r * sourceWidth35 r * (16 * r) :=
       Nat.mul_le_mul_left _ (hL2.trans hL3)
     _ = 32 * (r ^ 2 * sourceWidth35 r) := by ring
-    _ ≤ 32 * (r ^ 10 * sourceWidth35 r ^ 3) := Nat.mul_le_mul_left _ h3
-    _ ≤ 5920 * (r ^ 10 * sourceWidth35 r ^ 3) := Nat.mul_le_mul_right _ (by norm_num)
-    _ = 2 * (2960 * r ^ 10 * sourceWidth35 r ^ 3) := by ring
+    _ ≤ 32 * (r ^ 8 * sourceWidth35 r ^ 3) := Nat.mul_le_mul_left _ h3
+    _ ≤ 5920 * (r ^ 8 * sourceWidth35 r ^ 3) := Nat.mul_le_mul_right _ (by norm_num)
+    _ = 2 * (2960 * r ^ 8 * sourceWidth35 r ^ 3) := by ring
     _ ≤ n := hprim
 
-theorem source_schedule_valid35 (n r : ℕ) (hr : 6 ≤ r)
+theorem source_schedule_valid29 (n r : ℕ) (hr : 6 ≤ r)
     (hn : logThreshold r ≤ n) :
     0 < n ∧ 0 < sourceWidth35 r ∧
       0 < sparseBlocks n r (sourceWidth35 r) ∧
@@ -125,10 +127,10 @@ theorem source_schedule_valid35 (n r : ℕ) (hr : 6 ≤ r)
       49 ≤ tailStart n ∧
       (∀ i < sparseBlocks n r (sourceWidth35 r),
         r ∣ sparseStart n r (sourceWidth35 r) i ∧
-        threshold35 r ≤ sparseStart n r (sourceWidth35 r) i ∧
+        threshold29 r ≤ sparseStart n r (sourceWidth35 r) i ∧
         n ≤ 2 * sparseStart n r (sourceWidth35 r) i ∧
         sparseStart n r (sourceWidth35 r) i ≤ n) := by
-  obtain ⟨hprimitive, hsize, hroom⟩ := construction_threshold_conditions35 r n hr hn
+  obtain ⟨hprimitive, hsize, hroom⟩ := construction_threshold_conditions29 r n hr hn
   have hr0 : 0 < r := by omega
   have hrpow : 1 ≤ r ^ 2 := Nat.one_le_pow 2 r hr0
   have hn0 : 0 < n := by nlinarith only [hsize, hrpow]
@@ -169,7 +171,7 @@ theorem coefficient35_bound (r : ℚ) (hr : 6 ≤ r) :
   nlinarith [hp]
 
 /-- `ScheduledTransfer.scheduled_sparse_estimates` from the ratio interface. -/
-theorem scheduled_sparse_estimates35 (n r : ℕ) (hr : 6 ≤ r)
+theorem scheduled_sparse_estimates29 (n r : ℕ) (hr : 6 ≤ r)
     (hn : logThreshold r ≤ n) (f g : ℕ → ℚ)
     (hf : ∀ i < sparseBlocks n r (sourceWidth35 r), 0 ≤ f i ∧ f i ≤ 1)
     (hg0 : ∀ i < sparseBlocks n r (sourceWidth35 r), 0 ≤ g i)
@@ -181,7 +183,7 @@ theorem scheduled_sparse_estimates35 (n r : ℕ) (hr : 6 ≤ r)
     (∀ i < sparseBlocks n r (sourceWidth35 r),
       (n : ℚ) * g i ≤ (2 + 9 / (r : ℚ)) * f i) ∧
       pending f (sparseBlocks n r (sourceWidth35 r)) ≤ 1 / (r : ℚ) := by
-  obtain ⟨hn0, hW0, _, hJ, _, hstarts⟩ := source_schedule_valid35 n r hr hn
+  obtain ⟨hn0, hW0, _, hJ, _, hstarts⟩ := source_schedule_valid29 n r hr hn
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hr0 : (0 : ℚ) < r := by linarith only [hrQ]
   have hnQ : (0 : ℚ) < n := by exact_mod_cast hn0
@@ -237,7 +239,7 @@ theorem scheduled_sparse_estimates35 (n r : ℕ) (hr : 6 ≤ r)
       linarith only [hle]
     exact ⟨hcost, hdens⟩
   have hroomQ : 2 * (r : ℚ) * (sourceWidth35 r : ℚ) * (logFactor r : ℚ) ^ 2 ≤ n := by
-    exact_mod_cast pending_room35 r n hr hn
+    exact_mod_cast pending_room29 r n hr hn
   have hpend := sparse_pending_le_inv f (sparseBlocks n r (sourceWidth35 r)) r
     (n : ℚ) (sourceRho35 r) (sourceWidth35 r : ℚ) hnQ (by omega) hWQ hrho hJ hroomQ hf
     (fun i hi => (hlocal i hi).2)
@@ -246,46 +248,46 @@ theorem scheduled_sparse_estimates35 (n r : ℕ) (hr : 6 ≤ r)
 /-! ## Numerical data and the complete scheduled bound -/
 
 /-- `NumericalAssembly.scheduledDenominator` for the new width. -/
-def scheduledDenominator35 (n r i : ℕ) : ℕ :=
+def scheduledDenominator29 (n r i : ℕ) : ℕ :=
   SourceUniverse.risingCount (sparseStart n r (sourceWidth35 r) i) (sourceWidth35 r)
 
-structure SparseNumericalData35 (n r : ℕ) where
+structure SparseNumericalData29 (n r : ℕ) where
   rows : ℕ → ℕ
   charge : ℕ → ℕ
   circles : ℕ → ℕ
-  rows_le : ∀ i < sparseBlocks n r (sourceWidth35 r), rows i ≤ scheduledDenominator35 n r i
+  rows_le : ∀ i < sparseBlocks n r (sourceWidth35 r), rows i ≤ scheduledDenominator29 n r i
   density_lower : ∀ i < sparseBlocks n r (sourceWidth35 r),
     sourceRho35 r * (sourceWidth35 r : ℚ) / (2 * (sparseStart n r (sourceWidth35 r) i : ℚ)) ≤
-      (rows i : ℚ) / (scheduledDenominator35 n r i : ℚ)
+      (rows i : ℚ) / (scheduledDenominator29 n r i : ℚ)
   cost_ratio : ∀ i < sparseBlocks n r (sourceWidth35 r),
     (sparseStart n r (sourceWidth35 r) i : ℚ) *
-        (((charge i : ℚ) + (circles i : ℚ)) / (scheduledDenominator35 n r i : ℚ)) ≤
-      costCoefficient r * ratioAllowance r * ((rows i : ℚ) / (scheduledDenominator35 n r i : ℚ))
+        (((charge i : ℚ) + (circles i : ℚ)) / (scheduledDenominator29 n r i : ℚ)) ≤
+      costCoefficient r * ratioAllowance r * ((rows i : ℚ) / (scheduledDenominator29 n r i : ℚ))
   circle_ratio : ∀ i < sparseBlocks n r (sourceWidth35 r),
     (circles i : ℚ) ≤ ((r : ℚ) - 1) * (charge i : ℚ) /
       (sparseStart n r (sourceWidth35 r) i : ℚ)
 
-def SparseNumericalData35.density {n r : ℕ} (S : SparseNumericalData35 n r) (i : ℕ) : ℚ :=
-  (S.rows i : ℚ) / (scheduledDenominator35 n r i : ℚ)
+def SparseNumericalData29.density {n r : ℕ} (S : SparseNumericalData29 n r) (i : ℕ) : ℚ :=
+  (S.rows i : ℚ) / (scheduledDenominator29 n r i : ℚ)
 
-def SparseNumericalData35.chargeRate {n r : ℕ} (S : SparseNumericalData35 n r) (i : ℕ) : ℚ :=
-  (S.charge i : ℚ) / (scheduledDenominator35 n r i : ℚ)
+def SparseNumericalData29.chargeRate {n r : ℕ} (S : SparseNumericalData29 n r) (i : ℕ) : ℚ :=
+  (S.charge i : ℚ) / (scheduledDenominator29 n r i : ℚ)
 
-def SparseNumericalData35.circleRate {n r : ℕ} (S : SparseNumericalData35 n r) (i : ℕ) : ℚ :=
-  (S.circles i : ℚ) / (scheduledDenominator35 n r i : ℚ)
+def SparseNumericalData29.circleRate {n r : ℕ} (S : SparseNumericalData29 n r) (i : ℕ) : ℚ :=
+  (S.circles i : ℚ) / (scheduledDenominator29 n r i : ℚ)
 
-def SparseNumericalData35.totalRate {n r : ℕ} (S : SparseNumericalData35 n r) (i : ℕ) : ℚ :=
-  ((S.charge i : ℚ) + (S.circles i : ℚ)) / (scheduledDenominator35 n r i : ℚ)
+def SparseNumericalData29.totalRate {n r : ℕ} (S : SparseNumericalData29 n r) (i : ℕ) : ℚ :=
+  ((S.charge i : ℚ) + (S.circles i : ℚ)) / (scheduledDenominator29 n r i : ℚ)
 
-/-- `NumericalAssembly.scheduled_numerical_bound` for the exponent-35 data. -/
-theorem scheduled_numerical_bound35 (n r : ℕ) (hr : 6 ≤ r)
-    (hn : logThreshold r ≤ n) (S : SparseNumericalData35 n r)
+/-- `NumericalAssembly.scheduled_numerical_bound` for the exponent-29 data. -/
+theorem scheduled_numerical_bound29 (n r : ℕ) (hr : 6 ≤ r)
+    (hn : logThreshold r ≤ n) (S : SparseNumericalData29 n r)
     (T : DenseNumericalTrace n (pending S.density (sparseBlocks n r (sourceWidth35 r)))) :
     (n : ℚ) * accumulatedCost S.density S.totalRate (sparseBlocks n r (sourceWidth35 r)) +
       (n : ℚ) * T.X (denseBlocks n) +
       ((n : ℚ) * (accumulatedCost S.density S.circleRate (sparseBlocks n r (sourceWidth35 r)) +
         T.z (denseBlocks n)) + 2 * (n : ℚ) * T.p (denseBlocks n)) ≤ 2 + 26 / (r : ℚ) := by
-  obtain ⟨hn0, hW0, hJpos, _, htail49, hstarts⟩ := source_schedule_valid35 n r hr hn
+  obtain ⟨hn0, hW0, hJpos, _, htail49, hstarts⟩ := source_schedule_valid29 n r hr hn
   have hnQ : (0 : ℚ) < n := by exact_mod_cast hn0
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hr0 : (0 : ℚ) < r := by linarith only [hrQ]
@@ -300,13 +302,13 @@ theorem scheduled_numerical_bound35 (n r : ℕ) (hr : 6 ≤ r)
     have h : scheduleStart n r ≤ n := by simpa [sparseStart] using hstart0.2.2.2
     exact_mod_cast h
   have hroom : 2 * r * (r + sourceWidth35 r + tailLength n) ≤ n :=
-    (construction_threshold_conditions35 r n hr hn).2.2
+    (construction_threshold_conditions29 r n hr hn).2.2
   have hend := (schedule_bounds n r (sourceWidth35 r) hr hn0 hW0 (sourceWidth35_dvd r) hroom).2.2.1
   have hm0End : scheduleStart n r ≤ sparseEnd n r (sourceWidth35 r) := by unfold sparseEnd; omega
   have htailhalf : (n : ℚ) ≤ 2 * (tailStart n : ℚ) := by
     have h : (scheduleStart n r : ℚ) ≤ tailStart n := by exact_mod_cast hm0End.trans hend
     linarith only [hm0half, h]
-  have hD : ∀ i < sparseBlocks n r (sourceWidth35 r), (0 : ℚ) < scheduledDenominator35 n r i := by
+  have hD : ∀ i < sparseBlocks n r (sourceWidth35 r), (0 : ℚ) < scheduledDenominator29 n r i := by
     intro i hi
     have hhalf := (hstarts i hi).2.2.1
     have hm : 0 < sparseStart n r (sourceWidth35 r) i := by omega
@@ -316,12 +318,12 @@ theorem scheduled_numerical_bound35 (n r : ℕ) (hr : 6 ≤ r)
     constructor
     · exact div_nonneg (Nat.cast_nonneg _) (le_of_lt (hD i hi))
     · apply (div_le_iff₀ (hD i hi)).2
-      simpa only [one_mul] using (show (S.rows i : ℚ) ≤ scheduledDenominator35 n r i by
+      simpa only [one_mul] using (show (S.rows i : ℚ) ≤ scheduledDenominator29 n r i by
         exact_mod_cast S.rows_le i hi)
   have hg0 : ∀ i < sparseBlocks n r (sourceWidth35 r), 0 ≤ S.totalRate i := by
     intro i hi
     exact div_nonneg (by positivity) (le_of_lt (hD i hi))
-  obtain ⟨hcost, hpend⟩ := scheduled_sparse_estimates35 n r hr hn S.density S.totalRate
+  obtain ⟨hcost, hpend⟩ := scheduled_sparse_estimates29 n r hr hn S.density S.totalRate
     hf hg0 S.density_lower S.cost_ratio
   have hRate : ∀ i, S.totalRate i = S.chargeRate i + S.circleRate i := by
     intro i
@@ -336,7 +338,7 @@ theorem scheduled_numerical_bound35 (n r : ℕ) (hr : 6 ≤ r)
       (((r : ℚ) - 1) / (scheduleStart n r : ℚ)) * S.chargeRate i := by
     intro i hi
     apply normalized_circle_ratio (S.charge i : ℚ) (S.circles i : ℚ)
-      (scheduledDenominator35 n r i : ℚ) (sparseStart n r (sourceWidth35 r) i : ℚ)
+      (scheduledDenominator29 n r i : ℚ) (sparseStart n r (sourceWidth35 r) i : ℚ)
       (scheduleStart n r : ℚ) (r : ℚ) (Nat.cast_nonneg _) (hD i hi) hm0 _ hr1 (S.circle_ratio i hi)
     exact_mod_cast (show scheduleStart n r ≤ sparseStart n r (sourceWidth35 r) i by
       unfold sparseStart
@@ -366,7 +368,7 @@ theorem scheduled_numerical_bound35 (n r : ℕ) (hr : 6 ≤ r)
   have hp := dense_pending_lt_inverse_cube n hn0 T.p
     (by rw [T.p_zero]; exact hp1) T.contraction
   have hnSize : 96 * (r : ℚ) ^ 2 ≤ n := by
-    exact_mod_cast (construction_threshold_conditions35 r n hr hn).2.1
+    exact_mod_cast (construction_threshold_conditions29 r n hr hn).2.1
   have hj := completion_mass_error_bound (n : ℚ) (r : ℚ)
     (accumulatedCost S.density S.circleRate (sparseBlocks n r (sourceWidth35 r)) + T.z (denseBlocks n))
     (T.p (denseBlocks n)) hrQ hnSize hz (le_of_lt hp)
@@ -376,9 +378,9 @@ theorem scheduled_numerical_bound35 (n r : ℕ) (hr : 6 ≤ r)
       T.z (denseBlocks n)) + 2 * (n : ℚ) * T.p (denseBlocks n))
     hr0 hf hpend hcost hdense hj
 
-end CoefficientTwoPrecision.Asym35
+end CoefficientTwoPrecision.Asym29
 
-#print axioms CoefficientTwoPrecision.Asym35.construction_threshold_conditions35
-#print axioms CoefficientTwoPrecision.Asym35.source_schedule_valid35
-#print axioms CoefficientTwoPrecision.Asym35.scheduled_sparse_estimates35
-#print axioms CoefficientTwoPrecision.Asym35.scheduled_numerical_bound35
+#print axioms CoefficientTwoPrecision.Asym29.construction_threshold_conditions29
+#print axioms CoefficientTwoPrecision.Asym29.source_schedule_valid29
+#print axioms CoefficientTwoPrecision.Asym29.scheduled_sparse_estimates29
+#print axioms CoefficientTwoPrecision.Asym29.scheduled_numerical_bound29

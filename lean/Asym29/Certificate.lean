@@ -1,19 +1,19 @@
-import Asym33.Retention
-import Asym33.Transfer
+import Asym29.Retention
+import Asym29.Transfer
 import Quantitative.SparseFamilyConstruction
 
 /-!
-# Exponent 33: construction of the ratio-based sparse-family supplier
+# Exponent 29: construction of the ratio-based sparse-family supplier
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66).
 This is `StageSourceCertificate.from_contours` and
 `SparseFamilyConstruction.supplier` with the new threshold, the new
-retention bound (`Retention.exists_selection33`) and the ratio estimates
-(`CountRatio.estimates33`). The geometric construction (labels, packing,
+retention bound (`Retention.exists_selection29`) and the ratio estimates
+(`CountRatio.estimates29`). The geometric construction (labels, packing,
 global family, canonical relabelling) is Jay's, used unchanged.
 -/
 
-namespace CoefficientTwoPrecision.Asym33
+namespace CoefficientTwoPrecision.Asym29
 
 open CoefficientTwoPrecision.Asym35
 
@@ -21,13 +21,13 @@ open SuperpermutationUpperBound SuperpermutationUpperBound43586371
 open StageState SourceUniverse SourceFamilyAdapter SourceAdvancement
 open CandidateFactorization StageSourceCertificate
 
-theorem from_contours33 {m : Nat} (r : Nat) (hr : 6 ≤ r) (S : BuiltStage m)
-    (hm : threshold33 r ≤ m)
+theorem from_contours29 {m : Nat} (r : Nat) (hr : 6 ≤ r) (S : BuiltStage m)
+    (hm : threshold29 r ≤ m)
     (F : List (SourceContour (controls S (sourceWidth35 r) ++ S.A0) (m + sourceWidth35 r - 2)))
     (hinsertion : ∀ row ∈ sourceRows F, InsertionAbove (controls S (sourceWidth35 r)) S.A0 row.base)
     (hdistinct : (sourceRows F).Pairwise (fun row other => ¬ CyclicEq row.base other.base))
     (hretention : |(F.length : ℚ) / candidateCount35 r m - 1| ≤
-      deletionNumerator33 r (sourceWidth35 r) / m)
+      deletionNumerator29 r (sourceWidth35 r) / m)
     (hperturb : ∀ C ∈ F,
       |(C.rows.length : ℚ) - (((r : ℚ) - 2) * (backgroundSize35 r m : ℚ) ^ 2 +
         ((r : ℚ) * ((r : ℚ) - 1) + 1) * backgroundSize35 r m)| ≤
@@ -35,7 +35,7 @@ theorem from_contours33 {m : Nat} (r : Nat) (hr : 6 ≤ r) (S : BuiltStage m)
     (hcharge : ∀ C ∈ F,
       (C.rows.map Row.charge).sum = 2 * (r - 1) * backgroundSize35 r m)
     (hg : ∀ C ∈ F, portGcd C.rows (m + sourceWidth35 r - 2) ≤ r - 1) :
-    Nonempty (SparseBlockCertificate33 r S) := by
+    Nonempty (SparseBlockCertificate29 r S) := by
   have hW := width_positive35 r hr
   obtain ⟨hwidth, hnd, h9, h10, hnext, hnext9⟩ := alphabet_data S (sourceWidth35 r) hW
   have hsize : (controls S (sourceWidth35 r) ++ S.A0).length = m + sourceWidth35 r - 2 + 2 := by
@@ -45,7 +45,7 @@ theorem from_contours33 {m : Nat} (r : Nat) (hr : 6 ≤ r) (S : BuiltStage m)
   have hthree : 3 ≤ m + sourceWidth35 r - 2 + 2 := by
     have hlarge := width_linear35 r hr
     omega
-  have hm0 := (threshold_conditions33 r m hr hm).1
+  have hm0 := (threshold_conditions29 r m hr hm).1
   have hold : 0 < S.A0.length := by rwa [S.size]
   have hold9 : 9 ∉ S.A0 := fun h => h9 (List.mem_append_right _ h)
   let K : Block S (sourceWidth35 r) := CanonicalSourceFamily.widthBlock
@@ -57,7 +57,7 @@ theorem from_contours33 {m : Nat} (r : Nat) (hr : 6 ≤ r) (S : BuiltStage m)
   change K.sourceRows = _ ∧ K.sourceCharge = _ ∧ K.advancedCircles = _ at hcounts
   have hc : K.advancedCircles = (circles F).length := hcounts.2.2.trans (circles_length F).symm
   obtain ⟨hdensity, hcost, hratio⟩ :=
-    estimates33 F r m (52 * r ^ 4 * sourceWidth35 r ^ 2) hr hm
+    estimates29 F r m (52 * r ^ 4 * sourceWidth35 r ^ 2) hr hm
       (Nat.le_refl _) hretention hperturb hcharge hg
   refine ⟨{
     family := K
@@ -69,12 +69,12 @@ theorem from_contours33 {m : Nat} (r : Nat) (hr : 6 ≤ r) (S : BuiltStage m)
     exact hcost
   · simpa only [hcounts.2.1, hc] using hratio
 
-theorem supplier33 (r : Nat) (hr : 6 ≤ r) : SparseFamilySupplier33 r := by
+theorem supplier29 (r : Nat) (hr : 6 ≤ r) : SparseFamilySupplier29 r := by
   classical
   obtain ⟨d, rfl⟩ : ∃ d : Nat, r = d + 3 := ⟨r - 3, by omega⟩
   have hd : 3 ≤ d := by omega
   intro m stage hdiv hm
-  have hs := size_conditions33 d m hd hm
+  have hs := size_conditions29 d m hd hm
   have hA := sourceA35_pos (d + 3) hr
   letI : NeZero (m + GuardCatalogue.guardNumber d (sourceA35 (d + 3))) := ⟨by omega⟩
   obtain ⟨hwidth, hnd, h9, h10, hnext, hnext9⟩ :=
@@ -85,7 +85,7 @@ theorem supplier33 (r : Nat) (hr : 6 ≤ r) : SparseFamilySupplier33 r := by
   obtain ⟨old, physical, ho, hl, hcross, hword, hcontrol, hold⟩ :=
     GridAlphabet.exists_labels (controls stage (sourceWidth35 (d + 3))) stage.A0
       hwidthGrid stage.size hnd
-  obtain ⟨S, hS, hcard, hraw, hretention, hpacking⟩ := exists_selection33 d m hd hm
+  obtain ⟨S, hS, hcard, hraw, hretention, hpacking⟩ := exists_selection29 d m hd hm
   let rowIndex : FiniteRoles.Role (d + 2) ≃ Fin (d + 3) :=
     Fintype.equivFinOfCardEq (by simp [FiniteRoles.Role])
   have holdPos : 0 < stage.A0.length := by rw [stage.size]; exact hs.1
@@ -102,7 +102,7 @@ theorem supplier33 (r : Nat) (hr : 6 ≤ r) : SparseFamilySupplier33 r := by
   have hK := CatalogueBounds.occurrence_bound d (sourceA35 (d + 3)) hA
   change PrimaryCatalogue.occurrenceBound d (sourceA35 (d + 3)) ≤
     52 * (d + 3) ^ 4 * sourceWidth35 (d + 3) ^ 2 at hK
-  apply from_contours33 (d + 3) hr stage hm F hinsertion hdistinct
+  apply from_contours29 (d + 3) hr stage hm F hinsertion hdistinct
   · rw [hlength]
     simpa only [Nat.cast_add, Nat.cast_ofNat] using hretention
   · intro C hC
@@ -131,7 +131,7 @@ theorem supplier33 (r : Nat) (hr : 6 ≤ r) : SparseFamilySupplier33 r := by
   · intro C hC
     exact (hcounts C hC).2.1
 
-end CoefficientTwoPrecision.Asym33
+end CoefficientTwoPrecision.Asym29
 
-#print axioms CoefficientTwoPrecision.Asym33.from_contours33
-#print axioms CoefficientTwoPrecision.Asym33.supplier33
+#print axioms CoefficientTwoPrecision.Asym29.from_contours29
+#print axioms CoefficientTwoPrecision.Asym29.supplier29

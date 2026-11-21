@@ -1,4 +1,5 @@
 import Quantitative.PhysicalEnvelope
+import Asym29.Degree
 import Quantitative.ConstructionParameters
 
 /-!
@@ -7,6 +8,9 @@ import Quantitative.ConstructionParameters
 The robust-frame supply loses at most half its ordered tuples at the stated
 threshold. Labels are attached before the greedy selection. The exact size
 is the floor of eta times M^d, with eta defined by the construction parameters.
+
+Changed for the exponent-29 batch (J. Halfar, November 2026): the degree
+bound is `Asym29.degree_192` (`192 r^7`) in place of `degree_64` (`64 r^8`).
 -/
 
 namespace CoefficientTwoPrecision.PackingSupply
@@ -14,13 +18,13 @@ namespace CoefficientTwoPrecision.PackingSupply
 open LabelledReconstruction SortedFrameSupply EnvelopeDegree
 
 def desiredSize (M d : Nat) : Nat :=
-  ((d + 3).factorial * M ^ d) / (2 * d.factorial * (64 * (d + 3) ^ 8 + 1))
+  ((d + 3).factorial * M ^ d) / (2 * d.factorial * (192 * (d + 3) ^ 7 + 1))
 
 theorem desiredSize_eq_floor (M d : Nat) :
     desiredSize M d = ⌊sourceEta (d + 3) * (M : ℚ) ^ d⌋₊ := by
   have hform : sourceEta (d + 3) * (M : ℚ) ^ d =
       (((d + 3).factorial * M ^ d : Nat) : ℚ) /
-        ((2 * d.factorial * (64 * (d + 3) ^ 8 + 1) : Nat) : ℚ) := by
+        ((2 * d.factorial * (192 * (d + 3) ^ 7 + 1) : Nat) : ℚ) := by
     simp only [sourceEta, sourceDegree, Nat.add_sub_cancel, Nat.cast_mul,
       Nat.cast_add, Nat.cast_pow, Nat.cast_ofNat, Nat.cast_one]
     ring
@@ -46,12 +50,12 @@ theorem half_supply {M d : Nat} [NeZero M] (hd : 3 ≤ d)
 
 theorem size_budget {M d : Nat} [NeZero M] (hd : 3 ≤ d)
     (hsize : 38 * (d + 3) ^ 4 ≤ M) :
-    (64 * (d + 3) ^ 8 + 1) * desiredSize M d ≤ (labelledFrames M d).card := by
+    (192 * (d + 3) ^ 7 + 1) * desiredSize M d ≤ (labelledFrames M d).card := by
   have hhalf := half_supply hd hsize
   have hdivision := Nat.mul_div_le ((d + 3).factorial * M ^ d)
-    (2 * d.factorial * (64 * (d + 3) ^ 8 + 1))
+    (2 * d.factorial * (192 * (d + 3) ^ 7 + 1))
   have hscaled := Nat.mul_le_mul_left (d + 3).factorial hhalf
-  have hcombined : (2 * d.factorial) * ((64 * (d + 3) ^ 8 + 1) * desiredSize M d) ≤
+  have hcombined : (2 * d.factorial) * ((192 * (d + 3) ^ 7 + 1) * desiredSize M d) ≤
       (2 * d.factorial) * (labelledFrames M d).card := by
     rw [labelledFrames_card]
     dsimp only [desiredSize]
@@ -74,14 +78,14 @@ theorem exists_separated {M d : Nat} [NeZero M] {α : Type} [DecidableEq α]
   let R := Meets background embed (PhysicalJointStates.action (d + 2))
     (PhysicalJointStates.phase (d + 2))
   have hdegree : ∀ source ∈ labelledFrames M d,
-      ((labelledFrames M d).filter (R source)).card ≤ 64 * (d + 3) ^ 8 + 1 := by
+      ((labelledFrames M d).filter (R source)).card ≤ 192 * (d + 3) ^ 7 + 1 := by
     intro source hs
-    exact (degree_64 hM (by omega) (JointReconstruction.joint_index_card d)
+    exact (Asym29.degree_192 hM (by omega) (JointReconstruction.joint_index_card d)
       backgroundTest background embed hbackground hembed htb htc
       (PhysicalJointStates.action (d + 2)) (PhysicalJointStates.phase (d + 2)) source hs).trans
       (Nat.le_succ _)
   obtain ⟨S, hS, hcard, hsep⟩ := FinitePacking.exists_separated_of_mul_le R
-    (fun h => meets_symm _ _ _ _ h) (meets_refl _ _ _ _) (64 * (d + 3) ^ 8 + 1)
+    (fun h => meets_symm _ _ _ _ h) (meets_refl _ _ _ _) (192 * (d + 3) ^ 7 + 1)
     (by omega) (labelledFrames M d) hdegree (desiredSize M d) (size_budget hd hsize)
   exact ⟨S, hS, hcard.trans (desiredSize_eq_floor M d), hsep⟩
 

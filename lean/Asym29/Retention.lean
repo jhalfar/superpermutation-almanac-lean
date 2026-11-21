@@ -1,21 +1,23 @@
-import Asym33.Params
+import Asym29.Params
 import Asym33.IntervalKeys
 import Quantitative.SourceSelection
 
 /-!
-# Exponent 33: the retained fraction of the candidate set
+# Exponent 29: the retained fraction of the candidate set
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66).
 `GlobalRetention.proximity_loss` bounds the proximity deletion by
 `7118280 r^22 W^4 / m`. With the count of `IntervalKeys` (the keys of
 `Asym37.ProximityKeys`, grouped by their pair of event types, each group
 counted as one interval) the same deletion is at most `128 r^8 W^3 / m`
-(using `W ≥ 512 r^8`). The guard-only
+(using `W ≥ 512 r^7`). The guard-only
 deletion `GuardRelativeLoss.retained_loss` is unchanged. The selection
 theorem is `SourceSelection.exists_selection` with the new threshold.
 -/
 
-namespace CoefficientTwoPrecision.Asym33
+namespace CoefficientTwoPrecision.Asym29
+
+open CoefficientTwoPrecision.Asym33
 
 open CoefficientTwoPrecision.Asym35
 
@@ -26,7 +28,7 @@ open CoefficientTwoPrecision.Asym37
 
 /-- The type-pair count of `IntervalKeys`, normalised: the arithmetic part. -/
 theorem key_constant_bound (d A : Nat) (hA : 0 < A)
-    (hW8 : 512 * (d + 3) ^ 8 ≤ width d A) :
+    (hW8 : 512 * (d + 3) ^ 7 ≤ width d A) :
     typeTotal d A ^ 2 * (2 * typeBound d A) + freeKeyCount d A * (1560 * (d + 3) ^ 13) ≤
       128 * (d + 3) ^ 8 * width d A ^ 3 := by
   set r := d + 3 with hr
@@ -70,9 +72,9 @@ theorem key_constant_bound (d A : Nat) (hA : 0 < A)
           (2 * r ^ 2) * r ^ 2 * (29 * (r ^ 2 * W)) :=
         Nat.mul_le_mul (Nat.mul_le_mul hfirst hsecond) hB
       _ = 58 * (r ^ 6 * W) := by ring
-  have hWsq : 262144 * r ^ 16 ≤ W ^ 2 := by
+  have hWsq : 262144 * r ^ 14 ≤ W ^ 2 := by
     calc
-      262144 * r ^ 16 = (512 * r ^ 8) ^ 2 := by ring
+      262144 * r ^ 14 = (512 * r ^ 7) ^ 2 := by ring
       _ ≤ W ^ 2 := Nat.pow_le_pow_left hW8 2
   have hr11 : 1 ≤ r ^ 5 := Nat.one_le_pow _ _ (by omega)
   have hfree : freeKeyCount d A * (1560 * r ^ 13) ≤ 14 * r ^ 8 * W ^ 3 := by
@@ -81,9 +83,9 @@ theorem key_constant_bound (d A : Nat) (hA : 0 < A)
         Nat.mul_le_mul_right _ hK2
       _ = 90480 * (r ^ 19 * W) := by ring
       _ ≤ 3670016 * (r ^ 19 * W) := Nat.mul_le_mul_right _ (by norm_num)
-      _ ≤ 3670016 * (r ^ 5 * (r ^ 19 * W)) :=
+      _ ≤ 3670016 * (r ^ 3 * (r ^ 19 * W)) :=
         Nat.mul_le_mul_left _ (Nat.le_mul_of_pos_left _ (by positivity))
-      _ = 14 * r ^ 8 * W * (262144 * r ^ 16) := by ring
+      _ = 14 * r ^ 8 * W * (262144 * r ^ 14) := by ring
       _ ≤ 14 * r ^ 8 * W * W ^ 2 := Nat.mul_le_mul_left _ hWsq
       _ = 14 * r ^ 8 * W ^ 3 := by ring
   calc
@@ -92,10 +94,10 @@ theorem key_constant_bound (d A : Nat) (hA : 0 < A)
     _ = 128 * r ^ 8 * W ^ 3 := by ring
 
 /-- `GlobalRetention.proximity_loss` with the type-pair count. -/
-theorem proximity_loss33 {m d A : Nat} [NeZero (m + guardNumber d A)]
+theorem proximity_loss29 {m d A : Nat} [NeZero (m + guardNumber d A)]
     (hm : 0 < m) (hd : 3 ≤ d) (hA : 0 < A)
     (hM : m + guardNumber d A ≤ 2 * m) (hsize : guardNumber d A ^ 2 ≤ m)
-    (hW8 : 512 * (d + 3) ^ 8 ≤ width d A)
+    (hW8 : 512 * (d + 3) ^ 7 ≤ width d A)
     (S : Finset (Labelled (m + guardNumber d A) d))
     (hS : S ⊆ SortedFrameSupply.labelledFrames (m + guardNumber d A) d)
     (hhalf : sourceEta (d + 3) * ((m + guardNumber d A : Nat) : ℚ) ^ d / 2 ≤ S.card) :
@@ -161,30 +163,30 @@ theorem proximity_loss33 {m d A : Nat} [NeZero (m + guardNumber d A)]
   apply (le_div_iff₀ (show (0 : ℚ) < m by exact_mod_cast hm)).mpr
   nlinarith
 
-theorem total_loss33 {m d A : Nat} [NeZero (m + guardNumber d A)]
+theorem total_loss29 {m d A : Nat} [NeZero (m + guardNumber d A)]
     (hm : 0 < m) (hd : 3 ≤ d) (hA : 0 < A)
     (hM : m + guardNumber d A ≤ 2 * m) (hsize : guardNumber d A ^ 2 ≤ m)
-    (hW8 : 512 * (d + 3) ^ 8 ≤ width d A)
+    (hW8 : 512 * (d + 3) ^ 7 ≤ width d A)
     (S : Finset (Labelled (m + guardNumber d A) d))
     (hS : S ⊆ SortedFrameSupply.labelledFrames (m + guardNumber d A) d)
     (hhalf : sourceEta (d + 3) * ((m + guardNumber d A : Nat) : ℚ) ^ d / 2 ≤ S.card) :
     ((candidates m d A S).card : ℚ) - (survivors m d A hA S).card ≤
-      (candidates m d A S).card * (deletionNumerator33 (d + 3) (width d A) / m) := by
+      (candidates m d A S).card * (deletionNumerator29 (d + 3) (width d A) / m) := by
   have hfirst := GuardRelativeLoss.retained_loss m d A hm (by omega) hA hsize S
-  have hsecond := proximity_loss33 hm hd hA hM hsize hW8 S hS hhalf
+  have hsecond := proximity_loss29 hm hd hA hM hsize hW8 S hS hhalf
   have hsum := add_le_add hfirst hsecond
-  unfold deletionNumerator33
+  unfold deletionNumerator29
   convert hsum using 1 <;> ring
 
-theorem retention_error33 {m d A : Nat} [NeZero (m + guardNumber d A)]
+theorem retention_error29 {m d A : Nat} [NeZero (m + guardNumber d A)]
     (hm : 0 < m) (hd : 3 ≤ d) (hA : 0 < A)
     (hM : m + guardNumber d A ≤ 2 * m) (hsize : guardNumber d A ^ 2 ≤ m)
-    (hW8 : 512 * (d + 3) ^ 8 ≤ width d A)
+    (hW8 : 512 * (d + 3) ^ 7 ≤ width d A)
     (S : Finset (Labelled (m + guardNumber d A) d))
     (hS : S ⊆ SortedFrameSupply.labelledFrames (m + guardNumber d A) d)
     (hhalf : sourceEta (d + 3) * ((m + guardNumber d A : Nat) : ℚ) ^ d / 2 ≤ S.card) :
     |((survivors m d A hA S).card : ℚ) / (candidates m d A S).card - 1| ≤
-      deletionNumerator33 (d + 3) (width d A) / m := by
+      deletionNumerator29 (d + 3) (width d A) / m := by
   have hG := guard_positive d A hA
   have hGm : guardNumber d A ≤ m := by nlinarith
   have hguards : 0 < m.descFactorial (guardNumber d A) := Nat.descFactorial_pos.mpr hGm
@@ -200,21 +202,21 @@ theorem retention_error33 {m d A : Nat} [NeZero (m + guardNumber d A)]
   have hupper : ((survivors m d A hA S).card : ℚ) ≤ (candidates m d A S).card := by
     exact_mod_cast Finset.card_le_card
       ((survivors_subset hA S).trans (GuardCandidateLoss.retained_subset m d A hA S))
-  have hloss := total_loss33 hm hd hA hM hsize hW8 S hS hhalf
-  have hlo : 1 - deletionNumerator33 (d + 3) (width d A) / m ≤
+  have hloss := total_loss29 hm hd hA hM hsize hW8 S hS hhalf
+  have hlo : 1 - deletionNumerator29 (d + 3) (width d A) / m ≤
       ((survivors m d A hA S).card : ℚ) / (candidates m d A S).card := by
     apply (le_div_iff₀ hrawQ).mpr
     nlinarith
   have hhi := (div_le_one hrawQ).mpr hupper
-  have herror : 0 ≤ deletionNumerator33 (d + 3) (width d A) / m := by
-    unfold deletionNumerator33
+  have herror : 0 ≤ deletionNumerator29 (d + 3) (width d A) / m := by
+    unfold deletionNumerator29
     positivity
   apply abs_le.mpr
   constructor <;> linarith
 
 /-- `SourceSelection.size_conditions` from the new threshold. -/
-theorem size_conditions33 (d m : Nat) (hd : 3 ≤ d)
-    (hm : threshold33 (d + 3) ≤ m) :
+theorem size_conditions29 (d m : Nat) (hd : 3 ≤ d)
+    (hm : threshold29 (d + 3) ≤ m) :
     0 < m ∧ 2 * (d + 2) ≤ m + guardNumber d (sourceA35 (d + 3)) ∧
       38 * (d + 3) ^ 4 ≤ m + guardNumber d (sourceA35 (d + 3)) ∧
       m + guardNumber d (sourceA35 (d + 3)) ≤ 2 * m ∧
@@ -222,7 +224,7 @@ theorem size_conditions33 (d m : Nat) (hd : 3 ≤ d)
       radius d < m + guardNumber d (sourceA35 (d + 3)) ∧
       (2 * (2 * (d + 3) + 1) + 1) * PrimaryCatalogue.occurrenceBound d (sourceA35 (d + 3)) <
         m + guardNumber d (sourceA35 (d + 3)) := by
-  have hs := threshold_conditions33 (d + 3) m (by omega) hm
+  have hs := threshold_conditions29 (d + 3) m (by omega) hm
   have hA := sourceA35_pos (d + 3) (by omega)
   have hG := guard_le d (sourceA35 (d + 3))
   have hW : width d (sourceA35 (d + 3)) = sourceWidth35 (d + 3) := rfl
@@ -242,9 +244,9 @@ theorem size_conditions33 (d m : Nat) (hd : 3 ≤ d)
 
 /-- `SourceSelection.exists_selection` from the new threshold, with the new
 deletion numerator. -/
-theorem exists_selection33 (d m : Nat) [NeZero (m + guardNumber d (sourceA35 (d + 3)))]
+theorem exists_selection29 (d m : Nat) [NeZero (m + guardNumber d (sourceA35 (d + 3)))]
     (hd : 3 ≤ d)
-    (hm : threshold33 (d + 3) ≤ m) :
+    (hm : threshold29 (d + 3) ≤ m) :
     ∃ S : Finset (Labelled (m + guardNumber d (sourceA35 (d + 3))) d),
       S ⊆ labelledFrames (m + guardNumber d (sourceA35 (d + 3))) d ∧
       S.card = ⌊sourceEta (d + 3) *
@@ -252,7 +254,7 @@ theorem exists_selection33 (d m : Nat) [NeZero (m + guardNumber d (sourceA35 (d 
       (candidates m d (sourceA35 (d + 3)) S).card = candidateCount35 (d + 3) m ∧
       |((survivors m d (sourceA35 (d + 3)) (sourceA35_pos (d + 3) (by omega)) S).card : ℚ) /
         candidateCount35 (d + 3) m - 1| ≤
-          deletionNumerator33 (d + 3) (sourceWidth35 (d + 3)) / m ∧
+          deletionNumerator29 (d + 3) (sourceWidth35 (d + 3)) / m ∧
       ∀ {α : Type} (background : Fin (m + guardNumber d (sourceA35 (d + 3))) → α)
         (embed : FiniteRoles.Role (d + 2) → α),
         Function.Injective background → Function.Injective embed →
@@ -261,7 +263,7 @@ theorem exists_selection33 (d m : Nat) [NeZero (m + guardNumber d (sourceA35 (d 
           ∀ first second : List α, LiteralPacking.InEnvelope background embed source first →
             LiteralPacking.InEnvelope background embed target second →
               ¬ first.IsRotated second := by
-  have hs := size_conditions33 d m hd hm
+  have hs := size_conditions29 d m hd hm
   obtain ⟨S, hS, hcard, hsep⟩ := UniformPacking.exists_uniform_literal_separated hd
     (show 2 ≤ m + guardNumber d (sourceA35 (d + 3)) by omega) hs.2.2.1
   have hcandidates := prescribed_card35 m d S hcard
@@ -269,21 +271,23 @@ theorem exists_selection33 (d m : Nat) [NeZero (m + guardNumber d (sourceA35 (d 
       ((m + guardNumber d (sourceA35 (d + 3)) : Nat) : ℚ) ^ d / 2 ≤ S.card := by
     rw [hcard, guard_number_eq35]
     simpa only [Nat.add_sub_cancel, backgroundSize35] using
-      selected_floor_half33 (d + 3) m (by omega) hm
-  have hW8 : 512 * (d + 3) ^ 8 ≤ width d (sourceA35 (d + 3)) := by
-    have h := sourceWidth35_lower8 (d + 3) (by omega)
+      selected_floor_half29 (d + 3) m (by omega) hm
+  have hW8 : 512 * (d + 3) ^ 7 ≤ width d (sourceA35 (d + 3)) := by
+    have h := sourceWidth35_lower7 (d + 3) (by omega)
     have hL := logFactor_pos (d + 3)
-    have h1 : 512 * (d + 3) ^ 8 ≤ 512 * (d + 3) ^ 8 * logFactor (d + 3) :=
-      Nat.le_mul_of_pos_right _ (by omega)
+    have h1 : 512 * (d + 3) ^ 7 ≤ 1536 * (d + 3) ^ 7 * logFactor (d + 3) := by
+      calc
+        512 * (d + 3) ^ 7 ≤ 1536 * (d + 3) ^ 7 := Nat.mul_le_mul_right _ (by norm_num)
+        _ ≤ 1536 * (d + 3) ^ 7 * logFactor (d + 3) := Nat.le_mul_of_pos_right _ (by omega)
     exact h1.trans h
-  have hretention := retention_error33 hs.1 hd (sourceA35_pos (d + 3) (by omega))
+  have hretention := retention_error29 hs.1 hd (sourceA35_pos (d + 3) (by omega))
     hs.2.2.2.1 hs.2.2.2.2.1 hW8 S hS hhalf
   rw [hcandidates] at hretention
   exact ⟨S, hS, hcard, hcandidates, hretention, hsep⟩
 
-end CoefficientTwoPrecision.Asym33
+end CoefficientTwoPrecision.Asym29
 
-#print axioms CoefficientTwoPrecision.Asym33.key_constant_bound
-#print axioms CoefficientTwoPrecision.Asym33.proximity_loss33
-#print axioms CoefficientTwoPrecision.Asym33.retention_error33
-#print axioms CoefficientTwoPrecision.Asym33.exists_selection33
+#print axioms CoefficientTwoPrecision.Asym29.key_constant_bound
+#print axioms CoefficientTwoPrecision.Asym29.proximity_loss29
+#print axioms CoefficientTwoPrecision.Asym29.retention_error29
+#print axioms CoefficientTwoPrecision.Asym29.exists_selection29
