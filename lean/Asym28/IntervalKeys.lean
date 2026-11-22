@@ -1,26 +1,28 @@
 import Asym33.IntervalCount
-import Asym37.ProximityKeys
+import Asym28.ProximityKeys
 
 /-!
-# Exponent 33: the proximity deletion counted once per pair of event types
+# The proximity deletion counted once per pair of event types
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66), on
-top of `Asym37.ProximityKeys`. There a pair event is charged through its key
+top of `ProximityKeys` (this is `Asym33.IntervalKeys` of the exponent-1/32
+batch on the transversal design of `Asym28.TD`). There a pair event is charged through its key
 (two event types and the constant `c`, `|c| ≤ B = 14 r^2 W`), and every key
 costs Jay's root count `2(d-1)^2` guard values. For a fixed pair of types
 the linear form is the same for all `2B + 1` constants; only the constant
 changes. So the union over the constants is the set where the form lands in
 the interval `[-B, B]` (mod `m`), and `IntervalCount.linear_interval_count`
 bounds it by `4B + 2(d-1)^2 + 1` guard values in place of
-`(2B + 1) · 2(d-1)^2`. The guard-free part is that of `Asym37`, unchanged.
+`(2B + 1) · 2(d-1)^2`. The guard-free part is that of `ProximityKeys`, unchanged.
 -/
 
-namespace CoefficientTwoPrecision.Asym33
+namespace CoefficientTwoPrecision.Asym28
 
-open GuardCatalogue CandidateSpace LabelledReconstruction PrimaryCatalogue PrimaryRank
-open ProximityCatalogue ProximitySurvivors ProximityPairCount ProximityDeletion
-open NeighbourGeometry StationaryRelations ActiveSlotEvents CatalogueBounds SortedFrameSupply
-open CoefficientTwoPrecision.Asym37
+open CoefficientTwoPrecision.Asym33
+
+open TD.GuardCatalogue TD.CandidateSpace LabelledReconstruction TD.PrimaryCatalogue TD.PrimaryRank
+open TD.ProximityCatalogue TD.ProximitySurvivors TD.ProximityPairCount TD.ProximityDeletion
+open TD.NeighbourGeometry StationaryRelations ActiveSlotEvents TD.CatalogueBounds SortedFrameSupply
 
 variable {m d A : Nat}
 
@@ -175,7 +177,7 @@ theorem badFiber_card_types [NeZero (m + guardNumber d A)]
       calc
         (Eg.image typePair).card ≤ typeTotal d A * typeTotal d A := hc
         _ = typeTotal d A ^ 2 := by ring
-  -- guard-free part: as in Asym37.badFiber_card_keys
+  -- guard-free part: as in ProximityKeys.badFiber_card_keys
   let frameSet : Int × Fin (d + 2) × Fin (d + 2) × Int →
       Finset (Labelled (m + guardNumber d A) d) := fun k =>
     (labelledFrames (m + guardNumber d A) d).filter (fun node =>
@@ -217,8 +219,8 @@ theorem badFiber_card_types [NeZero (m + guardNumber d A)]
         obtain ⟨e, he, rfl⟩ := Finset.mem_image.mp hk
         obtain ⟨hdist, hzero⟩ := (Finset.mem_filter.mp he).2
         have ha : coefficient hA active e.1 * coefficient hA active e.2.1 ≠ 0 := mul_ne_zero
-          (PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.1)
-          (PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.2.1)
+          (TD.PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.1)
+          (TD.PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.2.1)
         have hne := distinct_slots_of_guard_free hd hA active e.1 e.2.1 hdist hzero
         have hbound := labelled_frame_count (d := d) m (m + guardNumber d A) hm (by omega) hM hd
           (coefficient hA active e.1 * coefficient hA active e.2.1) ha
@@ -288,14 +290,14 @@ theorem deleted_types [NeZero (m + guardNumber d A)]
     (S : Finset (Labelled (m + guardNumber d A) d))
     (hS : S ⊆ labelledFrames (m + guardNumber d A) d) :
     (d - 1).factorial *
-        ((GuardCandidateLoss.retained m d A hA S).card - (survivors m d A hA S).card) ≤
-      (A * ((d + 3) * A)) *
+        ((TD.GuardCandidateLoss.retained m d A hA S).card - (survivors m d A hA S).card) ≤
+      (A * TD.tdQ (d + 3) A) *
         ((d - 1).factorial * (typeTotal d A ^ 2 *
             (S.card * (m ^ (guardNumber d A - 1) * typeBound d A))) +
           freeKeyCount d A * frameBound m d A) := by
   classical
   have hbad : (d - 1).factorial * (allBad hA S).card ≤
-      (A * ((d + 3) * A)) *
+      (A * TD.tdQ (d + 3) A) *
         ((d - 1).factorial * (typeTotal d A ^ 2 *
             (S.card * (m ^ (guardNumber d A - 1) * typeBound d A))) +
           freeKeyCount d A * frameBound m d A) := by
@@ -309,11 +311,11 @@ theorem deleted_types [NeZero (m + guardNumber d A)]
         intro active _
         exact badFiber_card_types hm hM hd hA active S hS
       _ = _ := by
-        simp only [Finset.sum_const, Finset.card_univ, ActiveGrid.blocks_card, Nat.nsmul_eq_mul]
+        simp only [Finset.sum_const, Finset.card_univ, TD.ActiveGrid.blocks_card, Nat.nsmul_eq_mul]
   exact (Nat.mul_le_mul_left _ (deleted_le_allBad hA S)).trans hbad
 
-end CoefficientTwoPrecision.Asym33
+end CoefficientTwoPrecision.Asym28
 
-#print axioms CoefficientTwoPrecision.Asym33.typeSolutions_card
-#print axioms CoefficientTwoPrecision.Asym33.badFiber_card_types
-#print axioms CoefficientTwoPrecision.Asym33.deleted_types
+#print axioms CoefficientTwoPrecision.Asym28.typeSolutions_card
+#print axioms CoefficientTwoPrecision.Asym28.badFiber_card_types
+#print axioms CoefficientTwoPrecision.Asym28.deleted_types

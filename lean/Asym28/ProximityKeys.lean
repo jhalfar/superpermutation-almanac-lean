@@ -1,30 +1,33 @@
-import Quantitative.ProximityDeletion
+import Asym28.TD.ProximityDeletion
 
 /-!
-# Exponent 37: counting proximity equations by their key
+# Counting proximity equations by their key
 
 Addition to Jay Pantone's quantitative development (release 9ccbe66).
+This is `Asym37.ProximityKeys` of the exponent-37 batch on the transversal
+design of `Asym28.TD`: the type count is `T ≤ r^4 W` (on the grid
+`T ≤ r^3 W`, from `r A = W / r`; here only `r A ≤ W`).
 The proximity equation of a pair event depends on the pair only through
 the two event types (an event without its right side) and the constant
-`rightSide`. `ProximityDeletion.badFiber_scaled_count` charges every pair
+`rightSide`. `TD.ProximityDeletion.badFiber_scaled_count` charges every pair
 event separately with the maximum of the two rank cases. Here the bad
 fibre is a union over the distinct keys instead:
 
 * keys with a nonzero guard coefficient: at most `T^2 (2B+1)` keys, each
-  bounded by `ProximityPairCount.guard_variable_count`;
+  bounded by `TD.ProximityPairCount.guard_variable_count`;
 * guard-free keys: the equation is `a (q_j - q_l) ≡ b`, so the solution set
   depends only on `(a, j, l, b)`, at most `(2(d-1)^2+1) (d+2)^2 (2B+1)`
-  values, each bounded by `ProximityPairCount.labelled_frame_count`.
+  values, each bounded by `TD.ProximityPairCount.labelled_frame_count`.
 
 Here `T = (d+3)(A-1)(d+2)^3(d+1)` is the number of event types and
 `B = 14 (d+3)^2 W` bounds `|rightSide|`.
 -/
 
-namespace CoefficientTwoPrecision.Asym37
+namespace CoefficientTwoPrecision.Asym28
 
-open GuardCatalogue CandidateSpace LabelledReconstruction PrimaryCatalogue PrimaryRank
-open ProximityCatalogue ProximitySurvivors ProximityPairCount ProximityDeletion
-open NeighbourGeometry StationaryRelations ActiveSlotEvents CatalogueBounds SortedFrameSupply
+open TD.GuardCatalogue TD.CandidateSpace LabelledReconstruction TD.PrimaryCatalogue TD.PrimaryRank
+open TD.ProximityCatalogue TD.ProximitySurvivors TD.ProximityPairCount TD.ProximityDeletion
+open TD.NeighbourGeometry StationaryRelations ActiveSlotEvents TD.CatalogueBounds SortedFrameSupply
 
 variable {m d A : Nat}
 
@@ -109,19 +112,20 @@ theorem eventType_card (hA : 0 < A) (active : Active d A) :
   simp only [Finset.sum_const, Finset.card_univ, neighbour_card, Nat.nsmul_eq_mul, typeTotal]
   ring
 
-theorem typeTotal_le (d A : Nat) : typeTotal d A ≤ (d + 3) ^ 3 * width d A := by
+theorem typeTotal_le (d A : Nat) : typeTotal d A ≤ (d + 3) ^ 4 * width d A := by
   have hI : (d + 3) * (A - 1) ≤ (d + 3) * A := Nat.mul_le_mul_left _ (Nat.sub_le A 1)
   have hp : (d + 2) ^ 3 * (d + 1) ≤ (d + 3) ^ 4 := by
     calc
       (d + 2) ^ 3 * (d + 1) ≤ (d + 3) ^ 3 * (d + 3) :=
         Nat.mul_le_mul (Nat.pow_le_pow_left (by omega) 3) (by omega)
       _ = (d + 3) ^ 4 := by ring
-  unfold typeTotal width
+  unfold typeTotal
   calc
     (d + 3) * (A - 1) * (d + 2) ^ 3 * (d + 1) = ((d + 3) * (A - 1)) * ((d + 2) ^ 3 * (d + 1)) := by
       ring
     _ ≤ ((d + 3) * A) * (d + 3) ^ 4 := Nat.mul_le_mul hI hp
-    _ = (d + 3) ^ 3 * ((d + 3) ^ 2 * A) := by ring
+    _ ≤ width d A * (d + 3) ^ 4 := Nat.mul_le_mul_right _ (rowsA_le d A)
+    _ = (d + 3) ^ 4 * width d A := by ring
 
 theorem coefficient_natAbs_le (hd : 2 ≤ d) (hA : 0 < A) (active : Active d A)
     (e : Event d A hA active) : (coefficient hA active e).natAbs ≤ d - 1 := by
@@ -188,9 +192,7 @@ theorem rightSide_natAbs_le (hd : 3 ≤ d) (hA : 0 < A) (active : Active d A)
     omega
   have hd1 : d - 1 ≤ d + 3 := by omega
   have hR : radius d ≤ width d A := by
-    have hsq : (d + 3) ^ 2 ≤ width d A := by
-      have h := Nat.mul_le_mul_left ((d + 3) ^ 2) (show 1 ≤ A from hA)
-      simpa [width] using h
+    have hsq : (d + 3) ^ 2 ≤ width d A := rows_le d A
     unfold radius
     nlinarith
   have hA1 : (d - 1) * P ≤ (d + 3) * (6 * (d + 3) * width d A) := Nat.mul_le_mul hd1 hP
@@ -338,8 +340,8 @@ theorem badFiber_card_keys [NeZero (m + guardNumber d A)]
         obtain ⟨e, he, rfl⟩ := Finset.mem_image.mp hk
         obtain ⟨hdist, hzero⟩ := (Finset.mem_filter.mp he).2
         have ha : coefficient hA active e.1 * coefficient hA active e.2.1 ≠ 0 := mul_ne_zero
-          (PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.1)
-          (PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.2.1)
+          (TD.PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.1)
+          (TD.PrimaryCatalogue.coefficient_nonzero (by omega) hA active e.2.1)
         have hne := distinct_slots_of_guard_free hd hA active e.1 e.2.1 hdist hzero
         have hbound := labelled_frame_count (d := d) m (m + guardNumber d A) hm (by omega) hM hd
           (coefficient hA active e.1 * coefficient hA active e.2.1) ha
@@ -409,14 +411,14 @@ theorem deleted_keys [NeZero (m + guardNumber d A)]
     (S : Finset (Labelled (m + guardNumber d A) d))
     (hS : S ⊆ labelledFrames (m + guardNumber d A) d) :
     (d - 1).factorial *
-        ((GuardCandidateLoss.retained m d A hA S).card - (survivors m d A hA S).card) ≤
-      (A * ((d + 3) * A)) *
+        ((TD.GuardCandidateLoss.retained m d A hA S).card - (survivors m d A hA S).card) ≤
+      (A * TD.tdQ (d + 3) A) *
         ((d - 1).factorial * (guardKeyCount d A *
             (S.card * (m ^ (guardNumber d A - 1) * (2 * (d - 1) ^ 2)))) +
           freeKeyCount d A * frameBound m d A) := by
   classical
   have hbad : (d - 1).factorial * (allBad hA S).card ≤
-      (A * ((d + 3) * A)) *
+      (A * TD.tdQ (d + 3) A) *
         ((d - 1).factorial * (guardKeyCount d A *
             (S.card * (m ^ (guardNumber d A - 1) * (2 * (d - 1) ^ 2)))) +
           freeKeyCount d A * frameBound m d A) := by
@@ -430,12 +432,12 @@ theorem deleted_keys [NeZero (m + guardNumber d A)]
         intro active _
         exact badFiber_card_keys hm hM hd hA active S hS
       _ = _ := by
-        simp only [Finset.sum_const, Finset.card_univ, ActiveGrid.blocks_card, Nat.nsmul_eq_mul]
+        simp only [Finset.sum_const, Finset.card_univ, TD.ActiveGrid.blocks_card, Nat.nsmul_eq_mul]
   exact (Nat.mul_le_mul_left _ (deleted_le_allBad hA S)).trans hbad
 
-end CoefficientTwoPrecision.Asym37
+end CoefficientTwoPrecision.Asym28
 
-#print axioms CoefficientTwoPrecision.Asym37.pairSolutions_congr
-#print axioms CoefficientTwoPrecision.Asym37.rightSide_natAbs_le
-#print axioms CoefficientTwoPrecision.Asym37.badFiber_card_keys
-#print axioms CoefficientTwoPrecision.Asym37.deleted_keys
+#print axioms CoefficientTwoPrecision.Asym28.pairSolutions_congr
+#print axioms CoefficientTwoPrecision.Asym28.rightSide_natAbs_le
+#print axioms CoefficientTwoPrecision.Asym28.badFiber_card_keys
+#print axioms CoefficientTwoPrecision.Asym28.deleted_keys
