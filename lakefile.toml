@@ -1,7 +1,8 @@
 # The root Lake project of a Superpermutation Almanac batch submission.
 # Jay Pantone's released proof is in lean/ (three of his files are changed, see README.md); lean/Asym35/,
 # lean/Asym33/ and lean/Asym29/ hold counts of the earlier batches (lean/Asym29/ the envelope degree), and
-# lean/Asym28/ the transversal design (copies of his grid files in lean/Asym28/TD/) and the exponent-28 chain.
+# lean/Asym22/ the transversal design (copies of his grid files in lean/Asym22/TD/), the collision equations
+# in local positions and the exponent-22 chain.
 # AlmanacAdapter links the final theorem to the Almanac's definitions, and AlmanacSolution states the result.
 name = "superpermutation_asymptotics"
 version = "0.1.0"
@@ -21,7 +22,7 @@ globs = [
   "Challenge", "IntegerControlGrid", "Lean435Compatibility", "PositiveParking",
   "Precision", "ConstAsym.+", "Hunter.+", "LowerBounds.+", "PreimageChain.+",
   "Quantitative.+", "Superperm.+", "SuperpermutationUpperBound.+",
-  "SuperpermutationUpperBound43586371.+", "Asym35.+", "Asym33.+", "Asym29.+", "Asym28.+"
+  "SuperpermutationUpperBound43586371.+", "Asym35.+", "Asym33.+", "Asym29.+", "Asym22.+", "Asym25.+"
 ]
 
 [[lean_lib]]

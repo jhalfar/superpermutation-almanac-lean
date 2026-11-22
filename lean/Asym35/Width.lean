@@ -1,4 +1,5 @@
 import Quantitative.CandidatePositivity
+import Asym25.Params
 
 /-!
 # The smaller block count
@@ -11,20 +12,21 @@ pending mass after the sparse blocks at most `4/r`
 `Asym35.Pending` the density `ρ ≥ 4 r (log₂ r + 2)` already gives a
 pending mass of at most `1/r`. So here
 `A = ⌈4 r^2 (log₂ r + 2)/β⌉` and `ρ ≥ 4 r (log₂ r + 2)`. With the packing
-degree `192 r^7` of `Asym29.Degree` the density is `β ≥ 1/(1040 r^3)`, so
-`1536 r^5 (log₂ r + 2) ≤ A < 4160 r^5 (log₂ r + 2) + 1`.
+degree `240 r^6` of `Asym25.Degree` the density is `β ≥ 1/(1300 r^2)`, so
+`1920 r^4 (log₂ r + 2) ≤ A < 5200 r^4 (log₂ r + 2) + 1` (with the degree
+`192 r^7` of `Asym29.Degree` it was `4160 r^5 (log₂ r + 2) + 1`).
 
 The width and the counts that depend on the control grid are in
-`Asym28.Width` (transversal design, width `r q` with `q` the least prime
+`Asym22.Width` (transversal design, width `r q` with `q` the least prime
 `≥ A`). Earlier batches kept them here, for Jay's grid of width `r^2 A`.
 -/
 
 namespace CoefficientTwoPrecision.Asym35
 
-/-! ## The density for the packing degree `192 r^7` -/
+/-! ## The density for the packing degree `240 r^6` -/
 
-theorem betaPolynomial_upper7 (x : ℚ) (hx : 6 ≤ x) :
-    betaPolynomial x ≤ 1 / (384 * x ^ 3) := by
+theorem betaPolynomial25_upper6 (x : ℚ) (hx : 6 ≤ x) :
+    betaPolynomial25 x ≤ 1 / (480 * x ^ 2) := by
   have hx0 : 0 < x := by linarith
   have hxsub1 : 0 < x - 1 := by linarith
   have hxsub2 : 0 < x - 2 := by linarith
@@ -38,15 +40,15 @@ theorem betaPolynomial_upper7 (x : ℚ) (hx : 6 ≤ x) :
       x * (x - 1) * (x - 2) ^ 2 = x * ((x - 1) * (x - 2) ^ 2) := by ring
       _ ≤ x * (x * x ^ 2) := hprodUpper
       _ = x ^ 4 := by ring
-  unfold betaPolynomial
+  unfold betaPolynomial25
   rw [div_le_div_iff₀ (by positivity) (by positivity)]
-  have h := mul_le_mul_of_nonneg_right hNupper (show (0 : ℚ) ≤ 384 * x ^ 3 by positivity)
-  have e : x ^ 4 * (384 * x ^ 3) = 384 * x ^ 7 := by ring
+  have h := mul_le_mul_of_nonneg_right hNupper (show (0 : ℚ) ≤ 480 * x ^ 2 by positivity)
+  have e : x ^ 4 * (480 * x ^ 2) = 480 * x ^ 6 := by ring
   rw [e] at h
   linarith
 
-theorem betaPolynomial_lower7 (x : ℚ) (hx : 6 ≤ x) :
-    1 / (1040 * x ^ 3) ≤ betaPolynomial x := by
+theorem betaPolynomial25_lower6 (x : ℚ) (hx : 6 ≤ x) :
+    1 / (1300 * x ^ 2) ≤ betaPolynomial25 x := by
   have hx0 : 0 < x := by linarith
   have hx1 : (1 : ℚ) ≤ x := by linarith
   have hxsub1 : 0 < x - 1 := by linarith
@@ -63,11 +65,11 @@ theorem betaPolynomial_lower7 (x : ℚ) (hx : 6 ≤ x) :
           x * (((5 / 6 : ℚ) * x) * (((2 / 3 : ℚ) * x) ^ 2)) := by ring
       _ ≤ x * ((x - 1) * (x - 2) ^ 2) := hprodLower
       _ = x * (x - 1) * (x - 2) ^ 2 := by ring
-  have h7 : x ≤ x ^ 7 := le_self_pow₀ hx1 (by decide)
-  unfold betaPolynomial
+  have h7 : x ≤ x ^ 6 := le_self_pow₀ hx1 (by decide)
+  unfold betaPolynomial25
   rw [div_le_div_iff₀ (by positivity) (by positivity)]
-  have h := mul_le_mul_of_nonneg_right hNlower (show (0 : ℚ) ≤ 1040 * x ^ 3 by positivity)
-  have e : (10 / 27 : ℚ) * x ^ 4 * (1040 * x ^ 3) = (10400 / 27) * x ^ 7 := by ring
+  have h := mul_le_mul_of_nonneg_right hNlower (show (0 : ℚ) ≤ 1300 * x ^ 2 by positivity)
+  have e : (10 / 27 : ℚ) * x ^ 4 * (1300 * x ^ 2) = (13000 / 27) * x ^ 6 := by ring
   rw [e] at h
   linarith
 
@@ -77,9 +79,9 @@ theorem betaPolynomial_lower7 (x : ℚ) (hx : 6 ≤ x) :
 def logFactor (r : ℕ) : ℕ := Nat.log 2 r + 2
 
 /-- Blocks per letter: `⌈4 r^2 (log₂ r + 2) / β⌉`. -/
-def sourceA35 (r : ℕ) : ℕ := ⌈4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r⌉₊
+def sourceA35 (r : ℕ) : ℕ := ⌈4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta25 r⌉₊
 
-def sourceRho35 (r : ℕ) : ℚ := (sourceA35 r : ℚ) * sourceBeta r / (r : ℚ)
+def sourceRho35 (r : ℕ) : ℚ := (sourceA35 r : ℚ) * sourceBeta25 r / (r : ℚ)
 
 theorem logFactor_pos (r : ℕ) : 2 ≤ logFactor r := by
   unfold logFactor; omega
@@ -113,54 +115,54 @@ theorem sourceA35_pos (r : ℕ) (hr : 6 ≤ r) : 0 < sourceA35 r := by
   have hr0 : (0 : ℚ) < r := by exact_mod_cast (show 0 < r by omega)
   have hL : (0 : ℚ) < logFactor r := by
     exact_mod_cast (show 0 < logFactor r by have := logFactor_pos r; omega)
-  exact Nat.ceil_pos.mpr (div_pos (by positivity) (sourceBeta_bounds r hr).1)
+  exact Nat.ceil_pos.mpr (div_pos (by positivity) (sourceBeta25_bounds r hr).1)
 
 theorem sourceA35_ceil (r : ℕ) (hr : 6 ≤ r) :
-    4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) ≤ (sourceA35 r : ℚ) * sourceBeta r := by
-  have hbeta := (sourceBeta_bounds r hr).1
+    4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) ≤ (sourceA35 r : ℚ) * sourceBeta25 r := by
+  have hbeta := (sourceBeta25_bounds r hr).1
   exact (div_le_iff₀ hbeta).1 (Nat.le_ceil _)
 
-theorem sourceA35_lower (r : ℕ) (hr : 6 ≤ r) : 1536 * r ^ 5 * logFactor r ≤ sourceA35 r := by
+theorem sourceA35_lower (r : ℕ) (hr : 6 ≤ r) : 1920 * r ^ 4 * logFactor r ≤ sourceA35 r := by
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hr0 : (0 : ℚ) < r := by linarith
   have hL : (0 : ℚ) ≤ logFactor r := Nat.cast_nonneg _
-  have hbeta := (sourceBeta_bounds r hr).1
-  have hupper : sourceBeta r ≤ 1 / (384 * (r : ℚ) ^ 3) := by
-    rw [sourceBeta_closed_form r (by omega)]
-    exact betaPolynomial_upper7 (r : ℚ) hrQ
-  have hquot : 1536 * (r : ℚ) ^ 5 * logFactor r ≤
-      4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r := by
+  have hbeta := (sourceBeta25_bounds r hr).1
+  have hupper : sourceBeta25 r ≤ 1 / (480 * (r : ℚ) ^ 2) := by
+    rw [sourceBeta25_closed_form r (by omega)]
+    exact betaPolynomial25_upper6 (r : ℚ) hrQ
+  have hquot : 1920 * (r : ℚ) ^ 4 * logFactor r ≤
+      4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta25 r := by
     rw [le_div_iff₀ hbeta]
     calc
-      1536 * (r : ℚ) ^ 5 * logFactor r * sourceBeta r ≤
-          1536 * (r : ℚ) ^ 5 * logFactor r * (1 / (384 * (r : ℚ) ^ 3)) :=
+      1920 * (r : ℚ) ^ 4 * logFactor r * sourceBeta25 r ≤
+          1920 * (r : ℚ) ^ 4 * logFactor r * (1 / (480 * (r : ℚ) ^ 2)) :=
         mul_le_mul_of_nonneg_left hupper (by positivity)
       _ = 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) := by field_simp; ring
-  have hceil : 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r ≤ (sourceA35 r : ℚ) :=
+  have hceil : 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta25 r ≤ (sourceA35 r : ℚ) :=
     Nat.le_ceil _
   have h := hquot.trans hceil
   exact_mod_cast h
 
-/-- `A < 4160 r^5 (log₂ r + 2) + 1` (from `β ≥ 1/(1040 r^3)`). -/
+/-- `A < 5200 r^4 (log₂ r + 2) + 1` (from `β ≥ 1/(1300 r^2)`). -/
 theorem sourceA35_upper (r : ℕ) (hr : 6 ≤ r) :
-    (sourceA35 r : ℚ) < 4160 * (r : ℚ) ^ 5 * logFactor r + 1 := by
+    (sourceA35 r : ℚ) < 5200 * (r : ℚ) ^ 4 * logFactor r + 1 := by
   have hrQ : (6 : ℚ) ≤ r := by exact_mod_cast hr
   have hr0 : (0 : ℚ) < r := by linarith
   have hL1 : (1 : ℚ) ≤ logFactor r := by
     exact_mod_cast (show 1 ≤ logFactor r by have := logFactor_pos r; omega)
   have hL0 : (0 : ℚ) ≤ logFactor r := by linarith
-  obtain ⟨hbeta, _, _⟩ := sourceBeta_bounds r hr
-  have hbetalower : 1 / (1040 * (r : ℚ) ^ 3) ≤ sourceBeta r := by
-    rw [sourceBeta_closed_form r (by omega)]
-    exact betaPolynomial_lower7 (r : ℚ) hrQ
-  have hquot : 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r ≤
-      4160 * (r : ℚ) ^ 5 * logFactor r := by
+  obtain ⟨hbeta, _, _⟩ := sourceBeta25_bounds r hr
+  have hbetalower : 1 / (1300 * (r : ℚ) ^ 2) ≤ sourceBeta25 r := by
+    rw [sourceBeta25_closed_form r (by omega)]
+    exact betaPolynomial25_lower6 (r : ℚ) hrQ
+  have hquot : 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta25 r ≤
+      5200 * (r : ℚ) ^ 4 * logFactor r := by
     calc
-      4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r ≤
-          4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / (1 / (1040 * (r : ℚ) ^ 3)) :=
+      4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta25 r ≤
+          4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / (1 / (1300 * (r : ℚ) ^ 2)) :=
         div_le_div_of_nonneg_left (by positivity) (by positivity) hbetalower
-      _ = 4160 * (r : ℚ) ^ 5 * logFactor r := by field_simp; ring
-  have hceil : (sourceA35 r : ℚ) < 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta r + 1 :=
+      _ = 5200 * (r : ℚ) ^ 4 * logFactor r := by field_simp; ring
+  have hceil : (sourceA35 r : ℚ) < 4 * (r : ℚ) ^ 2 * (logFactor r : ℚ) / sourceBeta25 r + 1 :=
     Nat.ceil_lt_add_one (le_of_lt (div_pos (by positivity) hbeta))
   linarith
 
