@@ -1,5 +1,7 @@
 # Superpermutation bounds in Lean
 
+Every result with its Almanac page, tag and commit is listed in [RESULTS.md](RESULTS.md).
+
 Lean proofs of bounds on the length of the shortest superpermutation, laid out as batch submissions to the
 [Superpermutation Almanac](https://superpermutations.com). The full development, with the words and the other
 proofs, is in [jhalfar/superpermutations](https://github.com/jhalfar/superpermutations). Each batch is one commit
